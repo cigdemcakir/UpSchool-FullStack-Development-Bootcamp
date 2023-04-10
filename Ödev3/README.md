@@ -2,8 +2,7 @@
 
 CQRS (Command Query Responsibility Segregation) is an architectural pattern that separates the responsibility of handling commands and queries in a system. This separation allows for more efficient scaling and optimization of each responsibility, as well as increased flexibility in the design and implementation of the system.
 
-![](![Screenshot 2023-04-10 at 23 28 01](https://user-images.githubusercontent.com/102484836/230997240-1f1b07ff-e709-48df-8d62-efe746c77880.png)
-)
+![](https://user-images.githubusercontent.com/102484836/230997240-1f1b07ff-e709-48df-8d62-efe746c77880.png)
 
 ## Implementation in .NET
 CQRS is commonly implemented in .NET using a combination of patterns and technologies, including:
