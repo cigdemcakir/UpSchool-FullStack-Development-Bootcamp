@@ -1,4 +1,5 @@
-﻿using Application.Features.Cities.Commands.Add;
+﻿using Application.Features.Cities.Commands;
+using Application.Features.Cities.Commands.Add;
 using Application.Features.Cities.Queries.GetAll;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Filters;
