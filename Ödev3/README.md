@@ -1,4 +1,4 @@
-   # CQRS in .NET
+<h1 align="center">CQRS in .NET</h1>
 
 CQRS (Command Query Responsibility Segregation) is an architectural pattern that separates the responsibility of handling commands and queries in a system. This separation allows for more efficient scaling and optimization of each responsibility, as well as increased flexibility in the design and implementation of the system.
 
@@ -25,7 +25,7 @@ CQRS is commonly implemented in .NET using a combination of patterns and technol
 Command Handlers and Query Handlers are responsible for handling incoming commands and queries, respectively. MediatR is a library that provides an implementation of the mediator pattern, making it easy to register and resolve handlers. Domain Entities and Domain Services represent the business logic of the system, while Event Sourcing is a pattern for persisting the state of the system as a sequence of events.
 
 ---
-__With this repo, the following statements were made by me;__
+__✅ With this repo, the following statements were made by me;__
 
 👩‍💻 Configured the fields in our "Address", "Note", "NoteCategory" entities correctly for the database.
 
