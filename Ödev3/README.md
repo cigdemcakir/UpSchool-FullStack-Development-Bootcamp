@@ -24,3 +24,15 @@ CQRS is commonly implemented in .NET using a combination of patterns and technol
 
 Command Handlers and Query Handlers are responsible for handling incoming commands and queries, respectively. MediatR is a library that provides an implementation of the mediator pattern, making it easy to register and resolve handlers. Domain Entities and Domain Services represent the business logic of the system, while Event Sourcing is a pattern for persisting the state of the system as a sequence of events.
 
+---
+__With this repo, the following statements were made by me;__
+
+👩‍💻 Configured the fields in our "Address", "Note", "NoteCategory" entities correctly for the database.
+
+👩‍💻 Configured the relation between User and Address. One User can have many Addresses (one-to-many)
+
+👩‍💻 Configured the relation between Note and Category. One Note can have many Category and One Category can have many Note.
+
+👩‍💻 Created Add, Update, Delete and HardDelete Commands For "Address", in the "CQRS" structure.
+
+👩‍💻 Created GetById and GetAll Query for "Address", in "CQRS" structure.
