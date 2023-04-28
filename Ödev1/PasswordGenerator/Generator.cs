@@ -42,9 +42,9 @@ namespace PasswordGenerator
 
         public void Greetings()
         {
-            Console.WriteLine("*************************************");
+            Console.WriteLine("******************************************************");
             Console.WriteLine("Welcome to the B E S T P A S S W O R D M A N A G E R !");
-            Console.WriteLine("*************************************");
+            Console.WriteLine("******************************************************");
             Console.WriteLine("");
         }
 
