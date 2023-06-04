@@ -1,0 +1,77 @@
+@page "/Orders"
+@using Application.Features.Products.Queries.GetAll
+@inject HttpClient HttpClient
+
+<div class="container">
+  <h2 class="text-center">Orders</h2>          
+  <table class="table table-hover">
+     <thead>
+            <tr>
+                <th>OrderId</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Is On Sale</th>
+                <th>Sale Price</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (products != null && products.Count > 0)
+            {
+              @foreach (var product in products)
+              {
+                <tr>
+                  <td>@product.OrderId</td>
+                  <td>@product.Name</td>
+                  <td>@product.Price</td>
+                  <td>@product.IsOnSale</td>
+                  <td>@product.SalePrice</td>
+                  <td>@product.Picture</td>
+                  </tr>
+              }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">No data found.</td>
+                </tr>
+            }
+        </tbody>
+  </table>
+</div>
+
+
+
+@code {
+
+  List<ProductGetAllDto>? products = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await FetchProductsAsync();
+
+    await base.OnInitializedAsync();
+  }
+
+  private async Task FetchProductsAsync()
+  {
+    try
+    {
+      var response = await HttpClient.GetAsync("https://localhost:7015/api/Products/GetAll?isDeleted=false");
+
+      if (response.IsSuccessStatusCode)
+      {
+        products = await response.Content.ReadFromJsonAsync<List<ProductGetAllDto>>();
+      }
+      else
+      {
+        Console.WriteLine("Veri çekme hatası: " + response.StatusCode);
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine("Hata: " + ex.Message);
+    }
+  }
+
+}

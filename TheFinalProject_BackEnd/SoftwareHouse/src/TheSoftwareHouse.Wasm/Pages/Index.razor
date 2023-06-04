@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<PageTitle>HomePage</PageTitle>
+
+@code {
+  protected override async Task OnInitializedAsync()
+  {
+    await Task.Delay(5000); 
+
+    NavigationManager.NavigateTo("/crawler_live_logs"); 
+  }
+    
+}
+
+<body>
+  <h1  class="logo"> <img src="picture/logo.png" alt="logo"></h1>
+</body>
+<style>
+    body {
+      background-color: #B3D5ED;
+      color: #B3D5ED;
+    }
+    
+    .logo {
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+
