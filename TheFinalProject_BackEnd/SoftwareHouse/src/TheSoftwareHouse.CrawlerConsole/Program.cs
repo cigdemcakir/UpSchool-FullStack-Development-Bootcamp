@@ -16,7 +16,6 @@ using OfficeOpenXml;
 
 try
 {
-
     #region Locators
      
     By productsLocator = By.CssSelector(".card.h-100");
@@ -39,22 +38,25 @@ try
 
     #endregion
     
+    string productType;
     string? salePrice = null;
-    int crawledProductCount=0;
     string crawlRequestAmount;
-    string productType = string.Empty;
+    int crawledProductCount=0;
     
     var httpClient = new HttpClient();
     
     var orderAddRequest = new OrderAddCommand();
 
+    var orderEventAddRequest = new OrderEventAddCommand();
+
     ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
     new DriverManager().SetUpDriver(new ChromeConfig());
+    
     IWebDriver? driver = new ChromeDriver();
     
     var hubConnection = new HubConnectionBuilder()
-        .WithUrl($"https://localhost:7015/Hubs/CrawlerHub")
+        .WithUrl(crawlerHubUrl)
         .WithAutomaticReconnect()
         .Build();
     
@@ -62,21 +64,11 @@ try
     
     WhatKindOfProductsDoYouWantToCrawl();
     
-    var orderAddResponse = await SendHttpPostRequest<OrderAddCommand, object>(httpClient, "https://localhost:7015/api/Orders/Add", orderAddRequest);
-    
-    Guid orderId = orderAddRequest.Id;
+    CreateOrder();
     
     await hubConnection.StartAsync();
     
-    await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Bot started."));
-    
-     var orderEventAddRequest = new OrderEventAddCommand()
-     {
-         OrderId= orderId,
-         Status=OrderStatus.BotStarted,
-     };
-
-    var orderEventAddResponse = await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, "https://localhost:7015/api/OrderEvents/Add", orderEventAddRequest);
+    CreateOrderEvent(OrderStatus.BotStarted);
     
     driver.Navigate().GoToUrl(homePageUrl);
     
@@ -86,11 +78,14 @@ try
     
     Sleep(2);
     
+    CreateOrderEvent(OrderStatus.CrawlingStarted);
+    
     bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
     
     if (isNumber)
     {
         var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
+        
         CrawlProducts(crawlRequestNumber);
     }
     else
@@ -100,10 +95,6 @@ try
     
     async void CrawlProducts(int? requestNumber = null)
     {
-        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("The crawling operations are starting..."));
-        
-        Sleep(2);
-        
         List<Product> productList = new List<Product>();
         
         var pageLinks = driver.FindElements(pageNumberLocator)
@@ -139,6 +130,8 @@ try
                     
                     price = price.Replace("$", "");
                     
+                    if(crawledProductCount==1) await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"1. product were crawled"));
+                    
                     crawledProductCount++;
                     
                     var productAddRequest = new ProductAddCommand()
@@ -151,15 +144,15 @@ try
                         Picture=picture,
 
                     };
-                    var productAddResponse = await SendHttpPostRequest<ProductAddCommand, object>(httpClient, "https://localhost:7015/api/Products/Add", productAddRequest);
+                    
+                    await SendHttpPostRequest<ProductAddCommand, object>(httpClient, productsAddUrl, productAddRequest);
                     
                     Console.WriteLine($"Name: {name} -- OnSale: {isOnSale} -- Price: {price} -- Sale Price: {salePrice} -- Path: {picture}");
                 }
             }
             
-            if(crawledProductCount==4)
-                await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("4 products were crawled"));
-    
+            await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"{crawledProductCount}. product were crawled"));
+
             if (requestNumber.HasValue && crawledProductCount == requestNumber)
                 break;
     
@@ -168,15 +161,67 @@ try
                 driver.Navigate().GoToUrl(pageLinks[currentPage]);
             }
         }
+        CreateOrderEvent(OrderStatus.CrawlingCompleted);
+        
         CreateExcelSheet(productList);
 
         await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!"));
         
         Sleep(2);
+        
+        CreateOrderEvent(OrderStatus.OrderCompleted);
     }
+    
     Console.ReadKey();
     
     driver.Quit();
+
+    async void CreateOrderEvent(OrderStatus orderStatus)
+    {
+        orderEventAddRequest = new OrderEventAddCommand()
+        {
+            OrderId= orderAddRequest.Id,
+            Status=orderStatus,
+        };
+        
+        await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, orderEventsAddUrl, orderEventAddRequest);
+    
+        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : "+ orderEventAddRequest.Status.ToString()));
+    }
+
+    async void CreateOrder()
+    {
+        switch (productType.ToLower())
+        {
+            case "a":
+                orderAddRequest = new OrderAddCommand()
+                {
+                    Id = Guid.NewGuid(),
+                    ProductCrawlType = ProductCrawlType.All
+                };
+                break;
+
+            case "b":
+                orderAddRequest = new OrderAddCommand()
+                {
+                    Id = Guid.NewGuid(),
+                    ProductCrawlType = ProductCrawlType.All
+                };
+                break;
+
+            case "c":
+                orderAddRequest = new OrderAddCommand()
+                {
+                    Id = Guid.NewGuid(),
+                    ProductCrawlType = ProductCrawlType.All
+                };
+                break;
+        }
+        
+        await SendHttpPostRequest<OrderAddCommand, object>(httpClient, orderAddUrl, orderAddRequest);
+        
+        await hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id} -- Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}" ));
+    }
     
     void WhatKindOfProductsDoYouWantToCrawl()
     {
@@ -197,30 +242,7 @@ try
 
         Console.WriteLine("Please wait, the process is starting...");
 
-        if (productType.ToLower() == "a")
-        {
-            orderAddRequest = new OrderAddCommand()
-            {
-                Id = Guid.NewGuid(),
-                ProductCrawlType = ProductCrawlType.All
-            };
-        }
-        else if (productType.ToLower() == "a")
-        {
-            orderAddRequest = new OrderAddCommand()
-            {
-                Id = Guid.NewGuid(),
-                ProductCrawlType = ProductCrawlType.OnDiscount
-            };
-        }
-        else
-        {
-            orderAddRequest = new OrderAddCommand()
-            {
-                Id = Guid.NewGuid(),
-                ProductCrawlType = ProductCrawlType.NonDiscount
-            };
-        }
+        
     }
     
     void Sleep(int seconds)
@@ -234,12 +256,14 @@ try
             "---------------------------------------------------------------------------------------------------------\n"+
             "Please enter amount of the product that you want to crawl " +
             "or if you want to crawl all products enter 'All'");
-    
+        
         do
         {
             crawlRequestAmount = Console.ReadLine().Trim();
     
         } while (string.IsNullOrEmpty(crawlRequestAmount));
+        
+        
     }
 
     void CreateExcelSheet(List<Product> products)
