@@ -1,6 +1,10 @@
 @page "/Orders"
 @using Application.Features.Products.Queries.GetAll
+@using Domain.Dtos
+@using Domain.Services
+@using Microsoft.AspNetCore.SignalR.Client
 @inject HttpClient HttpClient
+@inject IUrlHelperService UrlHelperService
 
 <div class="container">
   <h2 class="text-center">Orders</h2>          
@@ -8,32 +12,19 @@
      <thead>
             <tr>
                 <th>OrderId</th>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Is On Sale</th>
-                <th>Sale Price</th>
-                <th>Image</th>
+                <th>Date</th>
+                <th>Products</th>
             </tr>
         </thead>
         <tbody>
-            @if (products != null && products.Count > 0)
+            @foreach (var log in logs)
             {
-              @foreach (var product in products)
-              {
-                <tr>
-                  <td>@product.OrderId</td>
-                  <td>@product.Name</td>
-                  <td>@product.Price</td>
-                  <td>@product.IsOnSale</td>
-                  <td>@product.SalePrice</td>
-                  <td>@product.Picture</td>
-                  </tr>
-              }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5">No data found.</td>
+              <tr class="table-light">
+                <td><strong>@log.Message</strong></td>
+                <td><strong>@log.SentOn.ToString("g")</strong></td>
+                <td>
+                  <a href="#" onclick="viewProducts('@log')">View Products</a>
+                  </td>
                 </tr>
             }
         </tbody>
@@ -44,11 +35,29 @@
 
 @code {
 
+  private List<CrawlerLogDto> logs = new List<CrawlerLogDto>();
+  
   List<ProductGetAllDto>? products = new();
-
+  
+  private HubConnection? hubConnection;
+  
   protected override async Task OnInitializedAsync()
   {
-    await FetchProductsAsync();
+    hubConnection = new HubConnectionBuilder()
+      .WithUrl($"{UrlHelperService.SignalRUrl}/CrawlerHub")
+      .WithAutomaticReconnect()
+      .Build();
+
+    hubConnection.On<CrawlerLogDto>("NewOrderAdded", (crawlerLogDto) =>
+    {
+      logs.Add(crawlerLogDto);
+        
+      InvokeAsync(StateHasChanged);
+    });
+
+    await hubConnection.StartAsync();
+  
+    //await FetchProductsAsync();
 
     await base.OnInitializedAsync();
   }

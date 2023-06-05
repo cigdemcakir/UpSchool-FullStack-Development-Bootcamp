@@ -220,7 +220,7 @@ try
         
         await SendHttpPostRequest<OrderAddCommand, object>(httpClient, orderAddUrl, orderAddRequest);
         
-        await hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id} -- Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}" ));
+        await hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}" ));
     }
     
     void WhatKindOfProductsDoYouWantToCrawl()
