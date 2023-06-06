@@ -10,7 +10,6 @@ namespace Domain.Dtos
     {
         public CrawlerLogDto Log { get; set; }
         public CrawlerLogDto OrderLog { get; set; }
-        
         public CrawlerLogDto ProductLog { get; set; }
         public string ConnectionId { get; set; }
 

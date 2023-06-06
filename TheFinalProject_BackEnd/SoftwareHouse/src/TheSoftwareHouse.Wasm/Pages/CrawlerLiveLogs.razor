@@ -1,27 +1,83 @@
-﻿@page "/crawler_live_logs"
+@page "/crawler_live_logs"
+
 @inject HttpClient Http
 @using Domain.Dtos
 @using Microsoft.AspNetCore.SignalR.Client
 @using Domain.Services
+@using Application.Features.Products.Queries.GetAll
 @inject IUrlHelperService UrlHelperService
 @inject NavigationManager NavigationManager
 
-<div class=fakeMenu>
-    <div class="fakeButtons fakeClose"></div>
-    <div class="fakeButtons fakeMinimize"></div>
-    <div class="fakeButtons fakeZoom"></div>
-</div>
-<div class="fakeScreen">
-    @foreach (var log in logs)
-    {
-        <p class="line1">@log.Message | @log.SentOn.ToString("g")</p>
-    }
+<div style="display: flex; height: 100vh;">
+    <div style="flex: 1; background-color: #000000; padding: 10px; min-height: 100vh; overflow-y: auto;">
+        <h4 class="text-center"style="color: #ffffff;">Crawler Logs</h4>
+        <br/>
+        <div class="fakeMenu">
+            <div class="fakeButtons fakeClose"></div>
+            <div class="fakeButtons fakeMinimize"></div>
+            <div class="fakeButtons fakeZoom"></div>
+        </div>
+        <div class="fakeScreen">
+            @foreach (var log in logs)
+            {
+                <p class="line1">@log.Message | @log.SentOn.ToString("g")</p>
+            }
+        </div>
+    </div>
+    <div style="flex: 2; background-color: #ffffff; padding: 10px; min-height: 100vh; overflow-y: auto;">
+        <h3 class="text-center">Orders</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>OrderId - Products</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var orderLog in orderLogs)
+                {
+                    <tr class="table-light">
+                        <td>
+                            <i class="oi oi-envelope-closed text-danger"></i>
+                            <strong class="text-danger">@orderLog.Message</strong>
+                        </td>
+                        <td><strong class="text-danger">@orderLog.SentOn.ToString("g")</strong></td>
+                    </tr>
+                }
+        
+                @{
+                    var listedProductIds = new HashSet<Guid>();
+                }
+                
+                @foreach (var productLog in productLogs)
+                {
+                    if (productLog.Id.HasValue && listedProductIds.Contains(productLog.Id.Value))
+                    {
+                        continue;
+                    }
+                
+                    <tr class="table-light">
+                        <td><strong>@productLog.Message</strong></td>
+                        <td><strong>@productLog.SentOn.ToString("g")</strong></td>
+                    </tr>
+                
+                    if (productLog.Id.HasValue)
+                    {
+                        listedProductIds.Add(productLog.Id.Value);
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {
 
     private List<CrawlerLogDto> logs = new List<CrawlerLogDto>();
-
+    private List<CrawlerLogDto> orderLogs = new List<CrawlerLogDto>();
+    private List<CrawlerLogDto> productLogs = new List<CrawlerLogDto>();
+    List<ProductGetAllDto>? products = new();
     private HubConnection? hubConnection;
 
     protected override async Task OnInitializedAsync()
@@ -34,30 +90,60 @@
         hubConnection.On<CrawlerLogDto>("NewCrawlerLogAdded", (crawlerLogDto) =>
         {
             logs.Add(crawlerLogDto);
+            InvokeAsync(StateHasChanged);
+        });
         
+        hubConnection.On<CrawlerLogDto>("NewOrderAdded", (crawlerLogDto) =>
+        {
+            orderLogs.Add(crawlerLogDto);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<CrawlerLogDto>("NewProductAdded", (crawlerLogDto) =>
+        {
+            productLogs.Add(crawlerLogDto);
             InvokeAsync(StateHasChanged);
         });
 
         await hubConnection.StartAsync();
-        
-        await Task.Delay(10000); 
 
-        NavigationManager.NavigateTo("/Orders"); 
+        await FetchProductsAsync();
 
         await base.OnInitializedAsync();
+    }
+
+    private async Task FetchProductsAsync()
+    {
+        try
+        {
+            var response = await Http.GetAsync("https://localhost:7015/api/Products/GetAll?isDeleted=false");
+
+            if (response.IsSuccessStatusCode)
+            {
+                products = await response.Content.ReadFromJsonAsync<List<ProductGetAllDto>>();
+            }
+            else
+            {
+                Console.WriteLine("Veri çekme hatası: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Hata: " + ex.Message);
+        }
     }
 
 }
 <style>
     body {
         background-color: #272727;
-        padding: 10px;
+        padding: 9px;
     }
 
     .fakeButtons {
         height: 10px;
-        width: 10px;
-        border-radius: 50%;
+        width: 8px;
+        border-radius: 100%;
         border: 1px solid #000;
         position: relative;
         top: 6px;
@@ -80,9 +166,10 @@
     }
 
     .fakeMenu {
-        width: 75%;
+        width: 100%;
         box-sizing: border-box;
         height: 25px;
+        margin-top: 2px;
         background-color: #bbb;
         margin: 0 auto;
         border-top-right-radius: 5px;
@@ -92,7 +179,7 @@
     .fakeScreen {
         background-color: #151515;
         box-sizing: border-box;
-        width: 75%;
+        width: 100%;
         margin: 0 auto;
         padding: 20px;
         border-bottom-left-radius: 5px;
@@ -101,11 +188,11 @@
 
     p {
         position: relative;
-        left: 35%;
-        width: 75%;
-        margin-left: -8.5em;
+        left: 0;
+        width: 90%;
+        margin-left: 0;
         text-align: left;
-        font-size: 1.25em;
+        font-size: 0.70em;
         font-family: monospace;
         white-space: nowrap;
         overflow: hidden;
@@ -113,7 +200,7 @@
 
     span {
         color: #fff;
-        font-weight: bold;
+        font-size: 9px;
     }
 
     .line1 {
@@ -288,3 +375,4 @@
         }
     }
 </style>
+
