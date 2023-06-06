@@ -19,19 +19,19 @@
             @foreach (var log in logs)
             {
               <tr class="table-light">
-                <td><strong>@log.Message</strong></td>
-                <td><strong>@log.SentOn.ToString("g")</strong></td>
+                <td><strong class="text-danger">@log.Message</strong></td>
+                <td><strong class="text-danger">@log.SentOn.ToString("g")</strong></td>
                 @*<td>
                   <a href="#" onclick="viewProducts('@log')">View Products</a>
                   </td>*@
-                @foreach (var productLog in productLogs)
-                {
-                  <tr class="table-light">
-                    <td><strong>@productLog.Message</strong></td>
-                    <td><strong>@productLog.SentOn.ToString("g")</strong></td>
-                    </tr>
-                }
+              </tr>
+              @foreach (var productLog in productLogs)
+              {
+                <tr class="table-light">
+                  <td><strong>@productLog.Message</strong></td>
+                  <td><strong>@productLog.SentOn.ToString("g")</strong></td>
                 </tr>
+              }
             }
         </tbody>
   </table>
@@ -72,7 +72,7 @@
 
     await hubConnection.StartAsync();
   
-    await FetchProductsAsync();
+    //await FetchProductsAsync();
 
     await base.OnInitializedAsync();
   }

@@ -42,6 +42,7 @@ try
     string? salePrice = null;
     string crawlRequestAmount;
     int crawledProductCount=0;
+    bool isCrawlingCountinue = true;
     
     var httpClient = new HttpClient();
     
