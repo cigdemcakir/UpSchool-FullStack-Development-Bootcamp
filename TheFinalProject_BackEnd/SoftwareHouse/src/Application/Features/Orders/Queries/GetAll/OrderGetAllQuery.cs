@@ -9,10 +9,9 @@ namespace Application.Features.Orders.Queries.GetAll
 {
     public class OrderGetAllQuery : IRequest<List<OrderGetAllDto>>
     {
-        public bool? IsDeleted { get; set; }
-        public OrderGetAllQuery(bool? isDeleted)
+        public OrderGetAllQuery()
         {
-            IsDeleted = isDeleted;
+           
         }
 
         

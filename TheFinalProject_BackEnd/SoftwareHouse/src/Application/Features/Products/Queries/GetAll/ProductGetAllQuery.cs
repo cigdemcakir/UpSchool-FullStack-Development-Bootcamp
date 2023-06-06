@@ -9,10 +9,10 @@ namespace Application.Features.Products.Queries.GetAll
 {
     public class ProductGetAllQuery : IRequest<List<ProductGetAllDto>>
     {
-        public bool? IsDeleted { get; set; }
-        public ProductGetAllQuery(bool? isDeleted)
+        public Guid OrderId { get; set; }
+        public ProductGetAllQuery(Guid orderId)
         {
-           IsDeleted = isDeleted;
+            OrderId = orderId;
         }
     }
 }

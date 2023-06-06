@@ -23,10 +23,7 @@ namespace Application.Features.Products.Queries.GetAll
         {
             var dbQuery = _applicationDbContext.Products.AsQueryable();
             
-            dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted);
-            
-            if (request.IsDeleted.HasValue) 
-                dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted.Value);
+            dbQuery = dbQuery.Where(x => x.OrderId == request.OrderId);
 
             var products = await dbQuery.ToListAsync(cancellationToken);
             
@@ -43,14 +40,13 @@ namespace Application.Features.Products.Queries.GetAll
             {
                 productGetAllDtos.Add(new ProductGetAllDto()
                 {
-                    Id = product.Id,
                     OrderId = product.OrderId,
                     Name = product.Name,
                     Picture = product.Picture,
                     IsOnSale = product.IsOnSale,
                     Price = product.Price,
                     SalePrice = product.SalePrice,
-                    IsDeleted = product.IsDeleted,
+                    CreatedOn = product.CreatedOn.ToString("dd.MM.yyyy HH:mm"),
 
                 });
             }

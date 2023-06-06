@@ -13,9 +13,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Pull")]
-        public async Task<IActionResult> GetAllAsync(bool? isDeleted)
+        public async Task<IActionResult> GetAllAsync()
         {
-            var query = new OrderGetAllQuery(isDeleted);
+            var query = new OrderGetAllQuery();
             return Ok(await Mediator.Send(query));
         }
     }

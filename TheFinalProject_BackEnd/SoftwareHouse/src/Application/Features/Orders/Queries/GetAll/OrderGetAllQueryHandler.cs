@@ -22,11 +22,6 @@ namespace Application.Features.Orders.Queries.GetAll
         public async Task<List<OrderGetAllDto>> Handle(OrderGetAllQuery request, CancellationToken cancellationToken)
         {
             var dbQuery = _applicationDbContext.Orders.AsQueryable();
-            
-            dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted);
-
-            if (request.IsDeleted.HasValue) 
-                dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted.Value);
 
             var orders = await dbQuery.ToListAsync(cancellationToken);
             
@@ -47,7 +42,6 @@ namespace Application.Features.Orders.Queries.GetAll
                     RequestedAmount = order.RequestedAmount,
                     TotalFoundAmount = order.TotalFoundAmount,
                     ProductCrawlType = order.ProductCrawlType,
-                    IsDeleted = order.IsDeleted,
                 };
             }
 

@@ -13,10 +13,10 @@ namespace WebApi.Controllers
             return Ok(await Mediator.Send(command));
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAllAsync(bool? isDeleted)
+        [HttpGet("GetByOrderID")]
+        public async Task<IActionResult> GetAllAsync(Guid orderId)
         {
-            var query = new ProductGetAllQuery(isDeleted);
+            var query = new ProductGetAllQuery(orderId);
             return Ok(await Mediator.Send(query));
         }
         // [HttpGet("GetAll")]
@@ -24,5 +24,7 @@ namespace WebApi.Controllers
         // {
         //     return Ok(await Mediator.Send(query));
         // }
+        
+        
     }
 }
