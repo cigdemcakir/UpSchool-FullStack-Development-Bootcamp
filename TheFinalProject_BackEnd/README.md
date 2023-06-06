@@ -11,6 +11,7 @@
 ---
 
 ### Technologies
+---
 
 The project incorporates a range of technologies to deliver its functionality:
 
