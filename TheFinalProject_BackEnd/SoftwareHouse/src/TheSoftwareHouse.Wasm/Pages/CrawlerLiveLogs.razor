@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Domain.Services
 @inject IUrlHelperService UrlHelperService
+@inject NavigationManager NavigationManager
 
 <div class=fakeMenu>
     <div class="fakeButtons fakeClose"></div>
@@ -38,6 +39,10 @@
         });
 
         await hubConnection.StartAsync();
+        
+        await Task.Delay(10000); 
+
+        NavigationManager.NavigateTo("/Orders"); 
 
         await base.OnInitializedAsync();
     }

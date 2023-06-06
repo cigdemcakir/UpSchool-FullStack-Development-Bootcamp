@@ -358,7 +358,7 @@ try
     string productType;
     string? salePrice = null;
     string crawlRequestAmount;
-    int crawledProductCount = 0;
+    int crawledProductCount;
 
     var httpClient = new HttpClient();
 
@@ -381,6 +381,8 @@ try
 
     while (true)
     {
+        crawledProductCount = 0;
+        
         HowManyProductDoYouWantToCrawl();
 
         WhatKindOfProductsDoYouWantToCrawl();
