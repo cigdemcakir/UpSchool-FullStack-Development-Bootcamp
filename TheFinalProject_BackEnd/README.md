@@ -57,7 +57,9 @@ The project incorporates a range of technologies to deliver its functionality:
 
 ## :diamond_shape_with_a_dot_inside: Project Structure
 
-The project is structured following the principles of Clean Architecture which organized into six main layers, each serving a specific purpose:
+<div align="center"><img src="structure.png" alt="resim" /></div><br/>
+
+The project is structured following the principles of Clean Architecture which organized into six main layers;
 
 :small_blue_diamond: Web Api: Acting as the entry point and user interface layer, the Web Api provides RESTful APIs for seamless interaction with the crawler functionality. It handles incoming requests and facilitates communication between clients and the application.
 
