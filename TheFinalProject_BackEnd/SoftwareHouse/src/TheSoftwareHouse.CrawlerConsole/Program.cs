@@ -147,6 +147,13 @@ try
                     };
                     
                     await SendHttpPostRequest<ProductAddCommand, object>(httpClient, productsAddUrl, productAddRequest);
+
+                    await hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
+                        $"Product Name : {name}" + "   -    " +
+                        $"Is On Sale ? :   {isOnSale}" + "   -    " +
+                        $"Product Price :   {price}" + "   -    " +
+                        $"Product Sale Price :   {salePrice}"+ "   -    " +
+                        $"Product Sale Price :   {price}"));
                     
                     Console.WriteLine($"Name: {name} -- OnSale: {isOnSale} -- Price: {price} -- Sale Price: {salePrice} -- Path: {picture}");
                 }

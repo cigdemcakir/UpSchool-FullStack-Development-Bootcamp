@@ -11,9 +11,8 @@
   <table class="table table-hover">
      <thead>
             <tr>
-                <th>OrderId</th>
+                <th>OrderId - Products</th>
                 <th>Date</th>
-                <th>Products</th>
             </tr>
         </thead>
         <tbody>
@@ -22,9 +21,16 @@
               <tr class="table-light">
                 <td><strong>@log.Message</strong></td>
                 <td><strong>@log.SentOn.ToString("g")</strong></td>
-                <td>
+                @*<td>
                   <a href="#" onclick="viewProducts('@log')">View Products</a>
-                  </td>
+                  </td>*@
+                @foreach (var productLog in productLogs)
+                {
+                  <tr class="table-light">
+                    <td><strong>@productLog.Message</strong></td>
+                    <td><strong>@productLog.SentOn.ToString("g")</strong></td>
+                    </tr>
+                }
                 </tr>
             }
         </tbody>
@@ -36,6 +42,8 @@
 @code {
 
   private List<CrawlerLogDto> logs = new List<CrawlerLogDto>();
+  
+  private List<CrawlerLogDto> productLogs = new List<CrawlerLogDto>();
   
   List<ProductGetAllDto>? products = new();
   
@@ -51,6 +59,13 @@
     hubConnection.On<CrawlerLogDto>("NewOrderAdded", (crawlerLogDto) =>
     {
       logs.Add(crawlerLogDto);
+        
+      InvokeAsync(StateHasChanged);
+    });
+    
+    hubConnection.On<CrawlerLogDto>("NewProductAdded", (crawlerLogDto) =>
+    {
+      productLogs.Add(crawlerLogDto);
         
       InvokeAsync(StateHasChanged);
     });

@@ -10,13 +10,17 @@ namespace Domain.Dtos
     {
         public CrawlerLogDto Log { get; set; }
         public CrawlerLogDto OrderLog { get; set; }
+        
+        public CrawlerLogDto ProductLog { get; set; }
         public string ConnectionId { get; set; }
 
-        public SendLogNotificationApiDto(CrawlerLogDto log, CrawlerLogDto orderLog, string connectionId)
+        public SendLogNotificationApiDto(CrawlerLogDto log, CrawlerLogDto orderLog, CrawlerLogDto productLog, string connectionId)
         {
             Log = log;
 
             OrderLog = orderLog;
+
+            ProductLog = productLog;
 
             ConnectionId = connectionId;
         }
