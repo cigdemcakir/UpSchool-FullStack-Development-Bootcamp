@@ -214,7 +214,7 @@ try
                 orderAddRequest = new OrderAddCommand()
                 {
                     Id = Guid.NewGuid(),
-                    ProductCrawlType = ProductCrawlType.All
+                    ProductCrawlType = ProductCrawlType.OnDiscount
                 };
                 break;
 
@@ -222,7 +222,7 @@ try
                 orderAddRequest = new OrderAddCommand()
                 {
                     Id = Guid.NewGuid(),
-                    ProductCrawlType = ProductCrawlType.All
+                    ProductCrawlType = ProductCrawlType.NonDiscount
                 };
                 break;
         }
