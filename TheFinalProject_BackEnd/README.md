@@ -1,7 +1,7 @@
 <h1 align="center">The Final Project - Software House</h1>
 
 <p align="center">
-  <img src=![logo.png] />
+  <img src=![logo](logo.png) />
 
 </p>
 
