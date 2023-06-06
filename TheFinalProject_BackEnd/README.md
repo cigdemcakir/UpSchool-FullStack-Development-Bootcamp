@@ -1,7 +1,5 @@
 <h1 align="center">The Final Project - Software House</h1>
 
-!https://user-images.githubusercontent.com/102484836/231033571-585b89cc-4e0c-4b57-bb97-6475efef3f70.png
-
 ---
 
 <p align="center">
