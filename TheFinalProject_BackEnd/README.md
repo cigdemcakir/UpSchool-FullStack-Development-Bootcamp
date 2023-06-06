@@ -33,27 +33,27 @@ Competitor's Website Address: [https://finalproject.dotnet.gg](https://finalproj
 
 The project incorporates a range of technologies to deliver its functionality:
 
-:white_small_square:Language: The project is primarily developed using C#, a powerful and versatile programming language.
+:white_small_square:__Language:__ The project is primarily developed using C#, a powerful and versatile programming language.
 
-:white_small_square:Framework: It leverages the .NET 7 framework, which offers a comprehensive set of tools and libraries for developing modern and scalable applications.
+:white_small_square:**Framework:** It leverages the .NET 7 framework, which offers a comprehensive set of tools and libraries for developing modern and scalable applications.
 
-:white_small_square:Architecture: The project follows the Clean Architecture principles, promoting separation of concerns and maintainability through clear architectural layers.
+:white_small_square:**Architecture:** The project follows the Clean Architecture principles, promoting separation of concerns and maintainability through clear architectural layers.
 
-:white_small_square:Web Scraping: For web scraping capabilities, the project utilizes Selenium, a popular and flexible framework for automating web browsers.
+:white_small_square:**Web Scraping:** For web scraping capabilities, the project utilizes Selenium, a popular and flexible framework for automating web browsers.
 
-:white_small_square:Database: The project integrates with Entity Framework Core for database operations. It utilizes MariaDB as the underlying database engine.
+:white_small_square:**Database:** The project integrates with Entity Framework Core for database operations. It utilizes MariaDB as the underlying database engine.
 
-:white_small_square:CQRS: The project implements the CQRS (Command Query Responsibility Segregation) pattern using MediatR, enabling a clear separation of commands and queries for improved code organization and scalability.
+:white_small_square:**CQRS:** The project implements the CQRS (Command Query Responsibility Segregation) pattern using MediatR, enabling a clear separation of commands and queries for improved code organization and scalability.
 
-:white_small_square:Real-time Communication: It employs SignalR from Microsoft.AspNetCore.SignalR to enable real-time communication between the server and clients, facilitating interactive and responsive user experiences.
+:white_small_square:**Real-time Communication:** It employs SignalR from Microsoft.AspNetCore.SignalR to enable real-time communication between the server and clients, facilitating interactive and responsive user experiences.
 
-:white_small_square:[ASP.NET](http://asp.net/) 7 with Entity Framework Core: The project utilizes the latest version of ASP.NET 7 and integrates it seamlessly with Entity Framework Core for efficient web development and data access.
+:white_small_square:**[ASP.NET](http://asp.net/) 7 with Entity Framework Core:** The project utilizes the latest version of ASP.NET 7 and integrates it seamlessly with Entity Framework Core for efficient web development and data access.
 
-:white_small_square:Blazor WebAssembly: The project incorporates Blazor WebAssembly for building rich and interactive web-based user interfaces, providing a smooth and responsive user experience.
+:white_small_square:**Blazor WebAssembly:** The project incorporates Blazor WebAssembly for building rich and interactive web-based user interfaces, providing a smooth and responsive user experience.
 
-:white_small_square:SMTP Email: For sending emails, the project integrates SMTP (Simple Mail Transfer Protocol), a widely used protocol for email transmission, ensuring reliable and efficient email delivery.
+:white_small_square:**SMTP Email:** For sending emails, the project integrates SMTP (Simple Mail Transfer Protocol), a widely used protocol for email transmission, ensuring reliable and efficient email delivery.
 
-:white_small_square:OfficeOpenXml: It utilizes the OfficeOpenXml library for working with Excel files, enabling the generation, manipulation, and reading of Excel documents within the application.
+:white_small_square:**OfficeOpenXml:** It utilizes the OfficeOpenXml library for working with Excel files, enabling the generation, manipulation, and reading of Excel documents within the application.
 
 ## :diamond_shape_with_a_dot_inside: Project Structure
 
