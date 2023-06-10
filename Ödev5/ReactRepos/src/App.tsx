@@ -93,12 +93,12 @@ function App() {
                     {sortByCreationDate ? (
                         <>
                             <SortAscendingIcon className="sort-button-icon" />
-                            Sort by Oldest
+                            <span className="sort-button-text" >Sort by Oldest</span>
                         </>
                     ) : (
                         <>
                             <SortDescendingIcon className="sort-button-icon" />
-                            Sort by Newest
+                            <span className="sort-button-text">Sort by Newest</span>
                         </>
                     )}
                 </button>
