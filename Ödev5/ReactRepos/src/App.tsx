@@ -1,8 +1,11 @@
 import todoLogo from './assets/todoLogo.svg';
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 // custom hooks
 import useLocalStorage from './hooks/useLocalStorage';
+
+import { SortAscendingIcon, SortDescendingIcon} from '@heroicons/react/solid';
 
 // custom components
 import CustomForm from './components/CustomForm';
@@ -14,12 +17,14 @@ function App() {
     const [previousFocusEl, setPreviousFocusEl] = useState<HTMLElement | null>(null);
     const [editedTask, setEditedTask] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [sortByCreationDate, setSortByCreationDate] = useState(false);
+
 
     const addTask = (task: any) => {
         const date = new Date();
         const dateString = date.toLocaleString();
         localStorage.setItem("createdTime", dateString);
-        const newTask = { id: Date.now(), checked: false, name: task.name, time:dateString };
+        const newTask = { id: uuidv4(), checked: false, name: task.name, time:dateString };
         setTasks((prevState: any) => [...prevState, newTask]);
     };
 
@@ -57,6 +62,19 @@ function App() {
         setPreviousFocusEl(document.activeElement as HTMLElement);
     };
 
+    const toggleSortByCreationDate = () => {
+        setSortByCreationDate(!sortByCreationDate);
+    };
+
+    const sortedTasks = sortByCreationDate
+        ? [...tasks].sort((a, b) => {
+            const dateA = new Date(a.time);
+            const dateB = new Date(b.time);
+            return dateB.getTime() - dateA.getTime();
+        })
+        : tasks;
+
+
     return (
         <div className="container" >
             <header>
@@ -70,14 +88,30 @@ function App() {
                 />
             )}
             <CustomForm addTask={addTask} />
-            {tasks && (
+            <div className="sort-button-container">
+                <button className="sort-button" onClick={toggleSortByCreationDate}>
+                    {sortByCreationDate ? (
+                        <>
+                            <SortAscendingIcon className="sort-button-icon" />
+                            Sort by Oldest
+                        </>
+                    ) : (
+                        <>
+                            <SortDescendingIcon className="sort-button-icon" />
+                            Sort by Newest
+                        </>
+                    )}
+                </button>
+            </div>
+            {sortedTasks && (
                 <TaskList
-                    tasks={tasks}
+                    tasks={sortedTasks}
                     deleteTask={deleteTask}
                     toggleTask={toggleTask}
                     enterEditMode={enterEditMode}
                 />
             )}
+
         </div>
 
     );

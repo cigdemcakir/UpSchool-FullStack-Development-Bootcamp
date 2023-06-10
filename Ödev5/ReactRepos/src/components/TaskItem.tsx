@@ -8,6 +8,7 @@ import { CheckIcon } from '@heroicons/react/outline';
 import { PencilIcon } from '@heroicons/react/outline';
 import { TrashIcon } from '@heroicons/react/outline';
 
+
 interface Task {
     id: number;
     name: string;

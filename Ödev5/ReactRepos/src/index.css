@@ -157,6 +157,38 @@ hr {
   box-shadow: 0.05em 0.1em 0.9em hsl(var(--accent) / 0.3), 0 0 0 -0.1em hsl(var(--bg)), 0 0 0 -0.2em hsl(var(--accent));
 }
 
+.sort-button-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-top: 0;
+}
+
+
+.sort-button {
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: hsl(var(--accent1)) !important;
+}
+
+.sort-button:focus {
+  outline: none;
+}
+
+.sort-button:hover {
+  color: hsl(var(--accent)) !important;
+}
+
+.sort-button-icon {
+  width: var(--_size);
+  height: var(--_size);
+  margin-right: 0.5em;
+}
+
 .btn:focus {
   outline: none;
 }
