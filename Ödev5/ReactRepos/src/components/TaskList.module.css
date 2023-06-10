@@ -1,0 +1,36 @@
+.tasks {
+    display: grid;
+    list-style-type: none;
+    gap: 1.5em;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.header > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header p {
+    color: #4EA8DE;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.textPurple {
+    color: #4EA8DE !important;
+}
+
+.header span {
+    background: #333333;
+    color: #D9D9D9;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
