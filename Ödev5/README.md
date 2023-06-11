@@ -1,4 +1,4 @@
-https://github.com/medgicakir/UpSchool-FullStack-Development-Bootcamp/assets/102484836/3b91b196-767d-43ff-84f7-73ac2de517e7
+https://github.com/medgicakir/UpSchool-FullStack-Development-Bootcamp/assets/102484836/78be7f93-b9b5-4434-a13d-b8e1a00f0922
 
 ---
 
@@ -11,6 +11,10 @@ To get a project up and running:
 2. Open the unzipped directory in you code editor.
 3. Run `npm install` to install all the dependencies.
 4. Run `npm run dev` to start the app.
+
+
+
+
 
 
 
