@@ -7,7 +7,6 @@ interface Task {
     id: number;
     name: string;
     checked: boolean;
-    // Diğer task özelliklerini buraya ekleyin
 }
 
 interface EditFormProps {

@@ -1,7 +1,7 @@
 import TaskItem from './TaskItem';
 
 // styles
-import styles from './TaskList.module.css';
+import styles from '../styles/TaskList.module.css';
 
 interface Task {
     id: number;

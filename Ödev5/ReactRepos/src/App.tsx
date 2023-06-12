@@ -2,19 +2,17 @@ import todoLogo from './assets/todoLogo.svg';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-// custom hooks
 import useLocalStorage from './hooks/useLocalStorage';
 
 import { SortAscendingIcon, SortDescendingIcon} from '@heroicons/react/solid';
 
-// custom components
 import CustomForm from './components/CustomForm';
 import EditForm from './components/EditForm';
 import TaskList from './components/TaskList';
 
 function App() {
     const [tasks, setTasks] = useLocalStorage('react-todo.tasks', []);
-    const [previousFocusEl, setPreviousFocusEl] = useState<HTMLElement | null>(null);
+    const [previousTask, setPreviousTask] = useState<HTMLElement | null>(null);
     const [editedTask, setEditedTask] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [sortByCreationDate, setSortByCreationDate] = useState(false);
@@ -51,15 +49,15 @@ function App() {
 
     const closeEditMode = () => {
         setIsEditing(false);
-        if (previousFocusEl) {
-            previousFocusEl.focus();
+        if (previousTask) {
+            previousTask.focus();
         }
     };
 
     const enterEditMode = (task: any) => {
         setEditedTask(task);
         setIsEditing(true);
-        setPreviousFocusEl(document.activeElement as HTMLElement);
+        setPreviousTask(document.activeElement as HTMLElement);
     };
 
     const toggleSortByCreationDate = () => {
