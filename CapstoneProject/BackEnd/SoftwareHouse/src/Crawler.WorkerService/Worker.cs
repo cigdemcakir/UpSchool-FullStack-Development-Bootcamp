@@ -1,21 +1,28 @@
-﻿using System.Text;
-using Domain.Dtos;
-using Domain.Entities;
 using Microsoft.AspNetCore.SignalR.Client;
-using OpenQA.Selenium;
+using Microsoft.AspNetCore.SignalR.Client;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium;
+using System.Collections.ObjectModel;
 using WebDriverManager.DriverConfigs.Impl;
 using WebDriverManager;
-using System.Text.RegularExpressions;
-using Application.Features.OrderEvents.Commands.Add;
 using Application.Features.Orders.Commands.Add;
-using Application.Features.Products.Commands.Add;
 using Domain.Enums;
+using Application.Features.OrderEvents.Commands.Add;
+using Application.Features.Products.Commands.Add;
 using Newtonsoft.Json;
-using OfficeOpenXml;
+using System.Text;
+using System.Text.RegularExpressions;
+using Domain.Dtos;
+using Domain.Entities;
 
-try
+namespace Crawler.WorkerService;
+
+public class Worker : BackgroundService
 {
+    private readonly ILogger<Worker> _logger;
+    private readonly string _crawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
+    private readonly HubConnection _hubConnection;
+    
     #region Locators
 
     By productsLocator = By.CssSelector(".card.h-100");
@@ -34,86 +41,100 @@ try
     const string orderAddUrl = "https://localhost:7015/api/Orders/Add";
     const string orderEventsAddUrl = "https://localhost:7015/api/OrderEvents/Add";
     const string productsAddUrl = "https://localhost:7015/api/Products/Add";
-    const string crawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
+    //const string crawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
 
     #endregion
-
+    
     string productType;
     string? salePrice = null;
     string crawlRequestAmount;
     int crawledProductCount;
-
-    var httpClient = new HttpClient();
-
-    var orderAddRequest = new OrderAddCommand();
-
-    var orderEventAddRequest = new OrderEventAddCommand();
-
-    ExcelPackage.LicenseContext = LicenseContext.Commercial;
-
-    new DriverManager().SetUpDriver(new ChromeConfig());
-
+    
     IWebDriver? driver = new ChromeDriver();
+    
+    HttpClient httpClient = new HttpClient();
 
-    var hubConnection = new HubConnectionBuilder()
-        .WithUrl(crawlerHubUrl)
-        .WithAutomaticReconnect()
-        .Build();
+    OrderAddCommand orderAddRequest = new OrderAddCommand();
 
-    while (true)
+    OrderEventAddCommand orderEventAddRequest = new OrderEventAddCommand();
+
+    public Worker(ILogger<Worker> logger)
     {
-        crawledProductCount = 0;
-        
-        await hubConnection.StartAsync();
-        
-        HowManyProductDoYouWantToCrawl();
+        _logger = logger;
 
-        WhatKindOfProductsDoYouWantToCrawl();
-
-        CreateOrder();
-
-        CreateOrderEvent(OrderStatus.BotStarted);
-
-        driver.Navigate().GoToUrl(homePageUrl);
-
-        Sleep(3);
-
-        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
-
-        Sleep(2);
-
-        CreateOrderEvent(OrderStatus.CrawlingStarted);
-
-        bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
-
-        if (isNumber)
-        {
-            var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
-
-            CrawlProducts(crawlRequestNumber);
-        }
-        else
-        {
-            CrawlProducts();
-        }
-
-        CreateOrderEvent(OrderStatus.CrawlingCompleted);
-
-        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
-
-        Sleep(2);
-
-        CreateOrderEvent(OrderStatus.OrderCompleted);
-
-        Console.WriteLine("Do you want to continue crawling? (y/n)");
-        var answer = Console.ReadLine();
-
-        if (answer?.ToLower() == "y")
-            await hubConnection.StopAsync();
-        else
-            break;
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(_crawlerHubUrl)
+            .WithAutomaticReconnect()
+            .Build();
     }
 
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            await Task.Delay(1000, stoppingToken);
+        }
+    }
+
+    async Task Crawler()
+    {
+        new DriverManager().SetUpDriver(new ChromeConfig());
+        
+        while (true)
+        {
+            crawledProductCount = 0;
+        
+            await _hubConnection.StartAsync();
+        
+            HowManyProductDoYouWantToCrawl();
+
+            WhatKindOfProductsDoYouWantToCrawl();
+
+            CreateOrder();
+
+            CreateOrderEvent(OrderStatus.BotStarted);
+
+            driver.Navigate().GoToUrl(homePageUrl);
+
+            Sleep(3);
+
+            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
+
+            Sleep(2);
+
+            CreateOrderEvent(OrderStatus.CrawlingStarted);
+
+            bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
+
+            if (isNumber)
+            {
+                var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
+
+                CrawlProducts(crawlRequestNumber);
+            }
+            else
+            {
+                CrawlProducts();
+            }
+
+            CreateOrderEvent(OrderStatus.CrawlingCompleted);
+
+            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
+
+            Sleep(2);
+
+            CreateOrderEvent(OrderStatus.OrderCompleted);
+
+            Console.WriteLine("Do you want to continue crawling? (y/n)");
+            var answer = Console.ReadLine();
+
+            if (answer?.ToLower() == "y")
+                await _hubConnection.StopAsync();
+            else
+                break;
+        }
+    }
     async void CrawlProducts(int? requestNumber = null)
     {
         List<Product> productList = new List<Product>();
@@ -151,7 +172,7 @@ try
 
                     price = price.Replace("$", "");
 
-                    if (crawledProductCount == 1) await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"1. product were crawled",Guid.Empty));
+                    if (crawledProductCount == 1) await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"1. product were crawled",Guid.Empty));
 
                     crawledProductCount++;
 
@@ -167,7 +188,7 @@ try
 
                     await SendHttpPostRequest<ProductAddCommand, object>(httpClient, productsAddUrl, productAddRequest);
 
-                    await hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
+                    await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
                         $"Product Name : {name}" + "   -    " +
                         $"Is On Sale ? :   {isOnSale}" + "   -    " +
                         $"Product Price :   {price}" + "   -    " +
@@ -179,7 +200,7 @@ try
                 }
             }
 
-            await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"{crawledProductCount}. product were crawled",Guid.Empty));
+            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"{crawledProductCount}. product were crawled",Guid.Empty));
 
             if (requestNumber.HasValue && crawledProductCount == requestNumber)
                 break;
@@ -191,9 +212,7 @@ try
         }
         CreateOrderEvent(OrderStatus.CrawlingCompleted);
 
-        CreateExcelSheet(productList);
-
-        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
+        await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
 
         Sleep(2);
 
@@ -210,7 +229,7 @@ try
 
         await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, orderEventsAddUrl, orderEventAddRequest);
 
-        await hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
+        await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
     }
 
     async void CreateOrder()
@@ -244,16 +263,15 @@ try
 
         await SendHttpPostRequest<OrderAddCommand, object>(httpClient, orderAddUrl, orderAddRequest);
 
-        await hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
+        await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
     }
-
     void WhatKindOfProductsDoYouWantToCrawl()
     {
         string[] validOptions = { "a", "b", "c" };
 
         Console.WriteLine("What kind of products do you want to crawl? " +
-                "\nPlease enter A, B or C." +
-                "\nA) All\nB) On Sale\nC) Nondiscount Products");
+                          "\nPlease enter A, B or C." +
+                          "\nA) All\nB) On Sale\nC) Nondiscount Products");
 
         do
         {
@@ -287,41 +305,6 @@ try
         } while (string.IsNullOrEmpty(crawlRequestAmount));
 
     }
-
-    void CreateExcelSheet(List<Product> products)
-    {
-        try
-        {
-            //var newFile = new FileInfo("Target File Path");
-            using (var package = new ExcelPackage(/*newFile*/))
-            {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
-
-                worksheet.Cells[1, 1].Value = "Name";
-                worksheet.Cells[1, 2].Value = "IsOnSale";
-                worksheet.Cells[1, 3].Value = "Price";
-                worksheet.Cells[1, 4].Value = "Sale Price";
-                worksheet.Cells[1, 5].Value = "Picture";
-
-                for (int i = 0; i < products.Count; i++)
-                {
-                    worksheet.Cells[i + 2, 1].Value = products[i].Name;
-                    worksheet.Cells[i + 2, 2].Value = products[i].IsOnSale;
-                    worksheet.Cells[i + 2, 3].Value = products[i].Price;
-                    worksheet.Cells[i + 2, 4].Value = products[i].SalePrice;
-                    worksheet.Cells[i + 2, 5].Value = products[i].Picture;
-                }
-
-                package.Save();
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-
     async Task<TResponse> SendHttpPostRequest<TRequest, TResponse>(HttpClient httpClient, string url, TRequest payload)
     {
         var jsonPayload = JsonConvert.SerializeObject(payload);
@@ -340,13 +323,4 @@ try
     }
 
     CrawlerLogDto CreateLog(string message,Guid id) => new CrawlerLogDto(message,id);
-
-    await hubConnection.StopAsync();
-
-    driver.Quit();
 }
-catch (Exception ex)
-{
-    Console.WriteLine(ex);
-}
-
