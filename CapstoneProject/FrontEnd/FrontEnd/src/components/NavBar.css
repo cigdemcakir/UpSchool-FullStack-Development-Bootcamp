@@ -1,0 +1,9 @@
+.navbar {
+    background-color: black !important;
+}
+
+.navbar-item {
+    color: white !important;
+    flex-grow: 1 !important;
+    text-align: center !important;
+}

@@ -1,42 +1,23 @@
-// Navbar.js
-import React from 'react';
-import { Link } from 'react-router-dom';
+import {Container, Menu, Image} from "semantic-ui-react";
+import {NavLink} from "react-router-dom";
+import "./Navbar.css";
 
 function Navbar() {
-    const navStyle: React.CSSProperties = {
-        display: 'flex',
-        justifyContent: 'space-between',
-        listStyle: 'none',
-        padding: '2em',
-        backgroundColor: '#ddd',
-        position: 'fixed',
-        top: 0,
-        width: '100%',
 
-    };
-
-    const linkStyle: React.CSSProperties = {
-        textDecoration: 'none',
-        color: 'black',
-    };
 
     return (
-        <nav>
-            <ul style={navStyle}>
-                <li>
-                    <Link to="/" style={linkStyle}>Login</Link>
-                </li>
-                <li>
-                    <Link to="/orders" style={linkStyle}>Orders</Link>
-                </li>
-                <li>
-                    <Link to="/settings" style={linkStyle}>Settings</Link>
-                </li>
-                <li>
-                    <Link to="/users" style={linkStyle}>Users</Link>
-                </li>
-            </ul>
-        </nav>
+        <Menu fixed='top' inverted className='navbar'>
+            <Container>
+                <Menu.Item as='a' header>
+                    <Image size='mini' src='/vite.svg' style={{ marginRight: '1.5em' }} />
+                    UpStorage
+                </Menu.Item>
+                <Menu.Item as={NavLink} to="/" className='navbar-item'>Home</Menu.Item>
+                <Menu.Item as={NavLink} to="/accounts" className='navbar-item'>Accounts </Menu.Item>
+                <Menu.Item as={NavLink} to="/countries" className='navbar-item'>Countries </Menu.Item>
+                <Menu.Item as={NavLink} to="/dafasdqweasdaf" className='navbar-item'>Not Found</Menu.Item>
+            </Container>
+        </Menu>
     );
 }
 
