@@ -8,14 +8,18 @@ function Navbar() {
     return (
         <Menu fixed='top' inverted className='navbar'>
             <Container>
-                <Menu.Item as='a' header>
-                    <Image size='mini' src='/vite.svg' style={{ marginRight: '1.5em' }} />
-                    UpStorage
-                </Menu.Item>
-                <Menu.Item as={NavLink} to="/" className='navbar-item'>Home</Menu.Item>
-                <Menu.Item as={NavLink} to="/accounts" className='navbar-item'>Accounts </Menu.Item>
-                <Menu.Item as={NavLink} to="/countries" className='navbar-item'>Countries </Menu.Item>
-                <Menu.Item as={NavLink} to="/dafasdqweasdaf" className='navbar-item'>Not Found</Menu.Item>
+                <div className='navbar-logo-container'>
+                    <Menu.Item as='a' header className="navbar-logo">
+                        <Image size='mini' src='/vite.svg' style={{ marginRight: '1.5em' }} />
+                        Software House
+                    </Menu.Item>
+                </div>
+                <div className='navbar-item-container'>
+                    <Menu.Item as={NavLink} to="/" className='navbar-item'>Login</Menu.Item>
+                    <Menu.Item as={NavLink} to="/orders" className='navbar-item'>Orders </Menu.Item>
+                    <Menu.Item as={NavLink} to="/settings" className='navbar-item'>Settings </Menu.Item>
+                    <Menu.Item as={NavLink} to="/users" className='navbar-item'>Users</Menu.Item>
+                </div>
             </Container>
         </Menu>
     );
