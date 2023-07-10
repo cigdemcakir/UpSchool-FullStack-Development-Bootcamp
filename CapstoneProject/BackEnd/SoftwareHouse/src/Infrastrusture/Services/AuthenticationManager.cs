@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    internal class AuthenticationManager : IAuthenticationService
+    public class AuthenticationManager : IAuthenticationService
     {
         private readonly UserManager<User> _userManager;
 
@@ -28,11 +28,17 @@ namespace Infrastructure.Services
             return _userManager.Users.AnyAsync(x => x.Email == email, cancellationToken);
         }
 
+        public Task<JwtDto> LoginAsync(AuthLoginRequest authLoginRequest, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             var user=createUserDto.MapToUser();
 
             var identityResult= await _userManager.CreateAsync(user, createUserDto.Password);
+            
             if (!identityResult.Succeeded)
             {
                 var failures = identityResult.Errors
@@ -41,8 +47,6 @@ namespace Infrastructure.Services
 
                 throw new ValidationException(failures);
             }
-
-
             return user.Id;
         }
 

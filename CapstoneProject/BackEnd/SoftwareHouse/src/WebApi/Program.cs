@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Hubs;
 using Domain.Settings;
 using Newtonsoft.Json.Linq;
+using WebApi.Filters;
 
 
 try

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Application.Common.Interfaces;
+using Infrastructure.Persistence.Contexts;
 using Infrastructure.Services;
 using Infrastrusture.Persistence;
 using Infrastrusture.Services;
@@ -16,11 +17,16 @@ public static class ConfigureServices
         var connectionString = configuration.GetConnectionString("MariaDB");
 
         services.AddDbContext<ApplicationDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
+        
+        services.AddDbContext<IdentityContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        
+        
+        //Scoped Services
         services.AddScoped<IApplicationDbContext>(provider=>provider.GetRequiredService<ApplicationDbContext>());
         
         services.AddScoped<IAuthenticationService, AuthenticationManager>();
         
+        //Singleton Services
         services.AddSingleton<IJwtService, JwtManager>();
 
         services.AddSingleton<IEmailService, EmailManager>();
