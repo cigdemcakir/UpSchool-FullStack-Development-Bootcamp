@@ -16,6 +16,7 @@ function Navbar() {
                 </div>
                 <div className='navbar-item-container'>
                     <Menu.Item as={NavLink} to="/" className='navbar-item'>Login</Menu.Item>
+                    <Menu.Item as={NavLink} to="/social-login" className='navbar-item'>SocialLogin</Menu.Item>
                     <Menu.Item as={NavLink} to="/orders" className='navbar-item'>Orders </Menu.Item>
                     <Menu.Item as={NavLink} to="/settings" className='navbar-item'>Settings </Menu.Item>
                     <Menu.Item as={NavLink} to="/users" className='navbar-item'>Users</Menu.Item>

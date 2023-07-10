@@ -18,8 +18,9 @@ try
     });
 
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+    builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("GoogleSettings"));
 
-    builder.Services.AddControllers(); //üstteki kırmızılar yeni geldi.
+    builder.Services.AddControllers(); 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddSignalR();

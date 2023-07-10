@@ -22,7 +22,7 @@ public class JwtManager : IJwtService
         _jwtSettings=jwtSettingsOption.Value;
     }
 
-    public JwtDto Generate(string userId, string email, string firstName, string lastName, List<string> roles = null)
+    public JwtDto Generate(string userId, string email, string firstName, string lastName, List<string>? roles = null)
     {
         var claims = new List<Claim>()
         {
