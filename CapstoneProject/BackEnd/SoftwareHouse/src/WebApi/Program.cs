@@ -2,6 +2,8 @@ using Application;
 using Infrastrusture;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Hubs;
+using Domain.Settings;
+using Newtonsoft.Json.Linq;
 
 
 try
@@ -9,8 +11,14 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
+    builder.Services.AddControllers(opt =>
+    {
+        opt.Filters.Add<GlobalExceptionFilter>();
+    });
 
-    builder.Services.AddControllers();
+    builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+    builder.Services.AddControllers(); //üstteki kırmızılar yeni geldi.
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddSignalR();

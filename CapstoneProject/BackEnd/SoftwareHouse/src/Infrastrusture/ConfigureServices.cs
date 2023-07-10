@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Application.Common.Interfaces;
+using Infrastructure.Services;
 using Infrastrusture.Persistence;
 using Infrastrusture.Services;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,10 @@ public static class ConfigureServices
         services.AddDbContext<ApplicationDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
         services.AddScoped<IApplicationDbContext>(provider=>provider.GetRequiredService<ApplicationDbContext>());
+        
+        services.AddScoped<IAuthenticationService, AuthenticationManager>();
+        
+        services.AddSingleton<IJwtService, JwtManager>();
 
         services.AddSingleton<IEmailService, EmailManager>();
 

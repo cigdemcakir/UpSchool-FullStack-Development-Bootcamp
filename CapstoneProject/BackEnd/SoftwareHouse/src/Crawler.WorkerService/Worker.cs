@@ -49,8 +49,8 @@ public class Worker : BackgroundService
     string? salePrice = null;
     string crawlRequestAmount;
     int crawledProductCount;
-    
-    IWebDriver? driver = new ChromeDriver();
+
+    private IWebDriver? driver;
     
     HttpClient httpClient = new HttpClient();
 
@@ -61,79 +61,108 @@ public class Worker : BackgroundService
     public Worker(ILogger<Worker> logger)
     {
         _logger = logger;
+        
+        new DriverManager().SetUpDriver(new ChromeConfig());
+    
+        driver = new ChromeDriver();
 
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(_crawlerHubUrl)
             .WithAutomaticReconnect()
             .Build();
+        
+        
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _hubConnection.On<int, string>("SendOrderNotificationAsync", async (productNumber, productCrawlType) =>
+        {
+            try
+            {
+                crawlRequestAmount = productNumber.ToString();
+                productType = productCrawlType;
+
+                await Crawler();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An error occurred while processing SendOrderNotificationAsync event");
+            }
+        });
+        
+        await _hubConnection.StartAsync(stoppingToken);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
-            //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             await Task.Delay(1000, stoppingToken);
         }
     }
 
     async Task Crawler()
     {
-        new DriverManager().SetUpDriver(new ChromeConfig());
-        
-        while (true)
+        try
         {
-            crawledProductCount = 0;
-        
-            await _hubConnection.StartAsync();
-        
-            HowManyProductDoYouWantToCrawl();
-
-            WhatKindOfProductsDoYouWantToCrawl();
-
-            CreateOrder();
-
-            CreateOrderEvent(OrderStatus.BotStarted);
-
-            driver.Navigate().GoToUrl(homePageUrl);
-
-            Sleep(3);
-
-            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
-
-            Sleep(2);
-
-            CreateOrderEvent(OrderStatus.CrawlingStarted);
-
-            bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
-
-            if (isNumber)
+            while (true)
             {
-                var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
+                driver.Navigate().GoToUrl(homePageUrl);
+                
+                Sleep(3);
+                crawledProductCount = 0;
+        
+                //await _hubConnection.StartAsync();
 
-                CrawlProducts(crawlRequestNumber);
+                CreateOrder(productType);
+
+                CreateOrderEvent(OrderStatus.BotStarted);
+
+                
+
+                Sleep(3);
+
+                await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
+
+                Sleep(2);
+
+                CreateOrderEvent(OrderStatus.CrawlingStarted);
+
+                bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
+
+                if (isNumber)
+                {
+                    var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
+
+                    CrawlProducts(crawlRequestNumber);
+                }
+                else
+                {
+                    CrawlProducts();
+                }
+
+                CreateOrderEvent(OrderStatus.CrawlingCompleted);
+
+                await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
+
+                Sleep(2);
+
+                CreateOrderEvent(OrderStatus.OrderCompleted);
+
+                // Console.WriteLine("Do you want to continue crawling? (y/n)");
+                // var answer = Console.ReadLine();
+                //
+                // if (answer?.ToLower() == "y")
+                //     await _hubConnection.StopAsync();
+                // else
+                //     break;
             }
-            else
-            {
-                CrawlProducts();
-            }
 
-            CreateOrderEvent(OrderStatus.CrawlingCompleted);
-
-            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
-
-            Sleep(2);
-
-            CreateOrderEvent(OrderStatus.OrderCompleted);
-
-            Console.WriteLine("Do you want to continue crawling? (y/n)");
-            var answer = Console.ReadLine();
-
-            if (answer?.ToLower() == "y")
-                await _hubConnection.StopAsync();
-            else
-                break;
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        
     }
     async void CrawlProducts(int? requestNumber = null)
     {
@@ -232,11 +261,11 @@ public class Worker : BackgroundService
         await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
     }
 
-    async void CreateOrder()
+    async void CreateOrder(string productType)
     {
         switch (productType.ToLower())
         {
-            case "a":
+            case "all":
                 orderAddRequest = new OrderAddCommand()
                 {
                     Id = Guid.NewGuid(),
@@ -244,7 +273,7 @@ public class Worker : BackgroundService
                 };
                 break;
 
-            case "b":
+            case "discount":
                 orderAddRequest = new OrderAddCommand()
                 {
                     Id = Guid.NewGuid(),
@@ -252,7 +281,7 @@ public class Worker : BackgroundService
                 };
                 break;
 
-            case "c":
+            case "nondiscount":
                 orderAddRequest = new OrderAddCommand()
                 {
                     Id = Guid.NewGuid(),
@@ -263,7 +292,7 @@ public class Worker : BackgroundService
 
         await SendHttpPostRequest<OrderAddCommand, object>(httpClient, orderAddUrl, orderAddRequest);
 
-        await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
+        //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
     }
     void WhatKindOfProductsDoYouWantToCrawl()
     {

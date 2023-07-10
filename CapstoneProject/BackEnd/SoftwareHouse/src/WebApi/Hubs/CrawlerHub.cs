@@ -21,4 +21,12 @@ public class CrawlerHub:Hub
         await Clients.AllExcept(Context.ConnectionId)
             .SendAsync("NewProductAdded", log); 
     }
+    // public async Task SendOrderNotificationAsync(int productNumber, string productCrawlType)
+    // {
+    //     var log = new CrawlerLogDto($"Order Created with Product Number: {productNumber} and Product Crawl Type: {productCrawlType}", Guid.NewGuid());
+    //
+    //     await Clients.AllExcept(Context.ConnectionId)
+    //         .SendAsync("NewOrderAdded", log); 
+    // }
+
 }
