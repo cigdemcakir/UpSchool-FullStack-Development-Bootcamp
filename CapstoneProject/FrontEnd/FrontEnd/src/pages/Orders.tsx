@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 function OrderPage() {
     const [count, setCount] = useState(0);
     const [crawlType, setCrawlType] = useState('all');
-    const { connection, connectionStarted, startConnection, stopConnection} = useSignalR(BASE_URL);
+    const { connection, connectionStarted, startConnection} = useSignalR(BASE_URL);
 
     useEffect(() => {
         startConnection();
