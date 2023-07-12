@@ -113,6 +113,7 @@ export default LoginPage;
 import React, { useState } from "react";
 import {Grid, Image} from "semantic-ui-react";
 import './LoginPage.css';
+import {Link} from "react-router-dom";
 
 const Login = () => {
     const [isFormOpen, setFormOpen] = useState(false);
@@ -143,9 +144,9 @@ const Login = () => {
                     <ul className="nav_items">
                         <li className="nav_item">
                             <a href="#" className="nav_link">Home</a>
-                            <a href="#" className="nav_link">Orders</a>
-                            <a href="#" className="nav_link">Settings</a>
-                            <a href="#" className="nav_link">Contact</a>
+                            <Link to="/orders" className="nav_link">Orders</Link>
+                            <Link to="/settings" className="nav_link">Settings</Link>
+                            <Link to="/users" className="nav_link">Users</Link>
                         </li>
                     </ul>
                     <button className="button" id="form-open" onClick={toggleForm}>Login</button>

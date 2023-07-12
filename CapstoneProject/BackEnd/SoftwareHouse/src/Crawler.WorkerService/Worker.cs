@@ -14,34 +14,36 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Domain.Dtos;
 using Domain.Entities;
+using OpenQA.Selenium.DevTools;
+using Serilog;
+using Log = Serilog.Log;
 
 namespace Crawler.WorkerService;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly string _crawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
     private readonly HubConnection _hubConnection;
     
     #region Locators
 
-    By productsLocator = By.CssSelector(".card.h-100");
-    By pageNumberLocator = By.CssSelector(".page-link.page-number");
-    By productName = By.CssSelector(".product-name");
-    By productPrice = By.CssSelector(".price");
-    By pictureLink = By.CssSelector(".card-img-top");
-    By onSale = By.CssSelector(".onsale");
-    By productOnSalePrice = By.CssSelector(".sale-price");
+    readonly By _productsLocator = By.CssSelector(".card.h-100");
+    readonly By _pageNumberLocator = By.CssSelector(".page-link.page-number");
+    readonly By _productName = By.CssSelector(".product-name");
+    readonly By _productPrice = By.CssSelector(".price");
+    readonly By _pictureLink = By.CssSelector(".card-img-top");
+    readonly By _onSale = By.CssSelector(".onsale");
+    readonly By _productOnSalePrice = By.CssSelector(".sale-price");
 
     #endregion
 
     #region Urls
 
-    const string homePageUrl = "https://4teker.net/";
-    const string orderAddUrl = "https://localhost:7015/api/Orders/Add";
-    const string orderEventsAddUrl = "https://localhost:7015/api/OrderEvents/Add";
-    const string productsAddUrl = "https://localhost:7015/api/Products/Add";
-    //const string crawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
+    const string HomePageUrl = "https://4teker.net/";
+    const string OrderAddUrl = "https://localhost:7015/api/Orders/Add";
+    const string OrderEventsAddUrl = "https://localhost:7015/api/OrderEvents/Add";
+    const string ProductsAddUrl = "https://localhost:7015/api/Products/Add";
+    const string CrawlerHubUrl = "https://localhost:7015/Hubs/CrawlerHub";
 
     #endregion
     
@@ -60,18 +62,30 @@ public class Worker : BackgroundService
 
     public Worker(ILogger<Worker> logger)
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()  // İsteğe bağlı
+            .WriteTo.Console()
+            .CreateLogger();
+        
         _logger = logger;
         
+        Log.Information("Before");
+
         new DriverManager().SetUpDriver(new ChromeConfig());
+        
+        Log.Information("After");
     
+        //driver = new ChromeDriver();
         driver = new ChromeDriver();
+        
+        Thread.Sleep(5);
+        
+        Log.Information("hi");
 
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl(_crawlerHubUrl)
+            .WithUrl(CrawlerHubUrl)
             .WithAutomaticReconnect()
             .Build();
-        
-        
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -80,6 +94,9 @@ public class Worker : BackgroundService
         {
             try
             {
+                //_logger.LogInformation("Received SendOrderNotificationAsync message with productNumber {productNumber} and productCrawlType {productCrawlType}", productNumber, productCrawlType);
+                Log.Information("Received SendOrderNotificationAsync message with productNumber {productNumber} and productCrawlType {productCrawlType}", productNumber, productCrawlType);
+                
                 crawlRequestAmount = productNumber.ToString();
                 productType = productCrawlType;
 
@@ -89,23 +106,40 @@ public class Worker : BackgroundService
             {
                 _logger.LogError(e, "An error occurred while processing SendOrderNotificationAsync event");
             }
+            
         });
+        Log.Information("execute");
         
-        await _hubConnection.StartAsync(stoppingToken);
+        await _hubConnection.StartAsync(stoppingToken).ContinueWith(task => 
+        {
+            if (task.IsFaulted)
+            {
+                Serilog.Log.Information(task.Exception, "An error occurred while connecting to the hub");
+            }
+            else
+            {
+                Log.Information("Connected to the hub successfully");
+            }
+        });
         
         while (!stoppingToken.IsCancellationRequested)
         {
+            Log.Information("....");
             await Task.Delay(1000, stoppingToken);
         }
     }
 
     async Task Crawler()
     {
+        Log.Information("Crawler method started.");
+        
         try
         {
-            while (true)
+            bool continueCrawling = true;
+            
+            while (continueCrawling)
             {
-                driver.Navigate().GoToUrl(homePageUrl);
+                driver.Navigate().GoToUrl(HomePageUrl);
                 
                 Sleep(3);
                 crawledProductCount = 0;
@@ -117,7 +151,6 @@ public class Worker : BackgroundService
                 CreateOrderEvent(OrderStatus.BotStarted);
 
                 
-
                 Sleep(3);
 
                 await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
@@ -154,6 +187,13 @@ public class Worker : BackgroundService
                 //     await _hubConnection.StopAsync();
                 // else
                 //     break;
+                Console.WriteLine("Do you want to continue crawling? (y/n)");
+                var answer = Console.ReadLine();
+            
+                if (answer?.ToLower() == "y")
+                    continueCrawling = true;
+                else
+                    continueCrawling = false;
             }
 
         }
@@ -168,7 +208,7 @@ public class Worker : BackgroundService
     {
         List<Product> productList = new List<Product>();
 
-        var pageLinks = driver.FindElements(pageNumberLocator)
+        var pageLinks = driver.FindElements(_pageNumberLocator)
                               .Select(x => x.GetAttribute("href"))
                               .ToList();
 
@@ -176,26 +216,26 @@ public class Worker : BackgroundService
 
         for (var currentPage = 1; currentPage <= pageLinks.Count; currentPage++)
         {
-            var products = driver.FindElements(productsLocator);
+            var products = driver.FindElements(_productsLocator);
 
             foreach (var productElement in products)
             {
                 if (requestNumber.HasValue && crawledProductCount == requestNumber)
                     break;
 
-                var isOnSale = productElement.FindElements(onSale).Count != 0;
+                var isOnSale = productElement.FindElements(_onSale).Count != 0;
 
                 if ((productType.ToLower() == "a")
                     || (productType.ToLower() == "b" && isOnSale)
                     || (productType.ToLower() == "c" && !isOnSale))
                 {
-                    var name = productElement.FindElement(productName).Text;
-                    var price = productElement.FindElement(productPrice).Text;
-                    var picture = productElement.FindElement(pictureLink).GetAttribute("src");
+                    var name = productElement.FindElement(_productName).Text;
+                    var price = productElement.FindElement(_productPrice).Text;
+                    var picture = productElement.FindElement(_pictureLink).GetAttribute("src");
 
                     if (isOnSale)
                     {
-                        salePrice = productElement.FindElement(productOnSalePrice).Text;
+                        salePrice = productElement.FindElement(_productOnSalePrice).Text;
                         salePrice = salePrice.Replace("$", "");
                     }
 
@@ -215,7 +255,7 @@ public class Worker : BackgroundService
                         Picture = picture,
                     };
 
-                    await SendHttpPostRequest<ProductAddCommand, object>(httpClient, productsAddUrl, productAddRequest);
+                    await SendHttpPostRequest<ProductAddCommand, object>(httpClient, ProductsAddUrl, productAddRequest);
 
                     await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
                         $"Product Name : {name}" + "   -    " +
@@ -256,7 +296,7 @@ public class Worker : BackgroundService
             Status = orderStatus,
         };
 
-        await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, orderEventsAddUrl, orderEventAddRequest);
+        await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, OrderEventsAddUrl, orderEventAddRequest);
 
         await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
     }
@@ -290,7 +330,7 @@ public class Worker : BackgroundService
                 break;
         }
 
-        await SendHttpPostRequest<OrderAddCommand, object>(httpClient, orderAddUrl, orderAddRequest);
+        await SendHttpPostRequest<OrderAddCommand, object>(httpClient, OrderAddUrl, orderAddRequest);
 
         //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
     }
