@@ -11,8 +11,10 @@ namespace Application.Common.Models.Auth
         public string AccessToken { get; set; }
         public DateTime ExpiryDate { get; set; }
 
-        public JwtDto(string accessToken, DateTime expiryDate) { 
+        public JwtDto(string accessToken, DateTime expiryDate) 
+        { 
             AccessToken = accessToken;
+            
             ExpiryDate = expiryDate;
         }
     }

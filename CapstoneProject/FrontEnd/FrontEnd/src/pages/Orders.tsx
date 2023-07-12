@@ -1,5 +1,6 @@
 import {useState, ChangeEvent, FormEvent, useEffect} from 'react';
 import useSignalR from '../hooks/useSignalR'
+import 'tailwindcss/tailwind.css'
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 
@@ -71,22 +72,22 @@ function OrderPage() {
     };
 
     return (
-        <div>
-            <h1>Order Page</h1>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Product Count:
-                    <input type="number" value={count} onChange={handleCountChange} />
-                </label>
-                <label>
-                    Product Crawl Type:
-                    <select value={crawlType} onChange={handleCrawlTypeChange}>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <h1 className="text-4xl font-bold mb-10 text-gray-700">Order Page</h1>
+            <form onSubmit={handleSubmit} className="p-10 bg-white rounded shadow-xl w-1/3">
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-gray-600">Product Count:</label>
+                    <input type="number" value={count} onChange={handleCountChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                </div>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-gray-600">Product Crawl Type:</label>
+                    <select value={crawlType} onChange={handleCrawlTypeChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="all">All</option>
                         <option value="discount">Discount</option>
                         <option value="nondiscount">Non-Discount</option>
                     </select>
-                </label>
-                <input type="submit" value="Create Order" />
+                </div>
+                <input type="submit" value="Create Order" className="w-full py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
             </form>
         </div>
     );

@@ -16,13 +16,14 @@ namespace Infrastructure.Services
     public class AuthenticationManager : IAuthenticationService
     {
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager; //devamı eklenecek
         private readonly IJwtService _jwtService;
 
-        public AuthenticationManager(UserManager<User> userManager, IJwtService jwtService)
+        public AuthenticationManager(UserManager<User> userManager, SignInManager<User> signInManager, IJwtService jwtService)
         {
             _userManager = userManager;
             _jwtService = jwtService;
-
+            _signInManager = signInManager;
         }
 
         public Task<bool> CheckIfUserExists(string email, CancellationToken cancellationToken)
@@ -30,9 +31,18 @@ namespace Infrastructure.Services
             return _userManager.Users.AnyAsync(x => x.Email == email, cancellationToken);
         }
 
-        public Task<JwtDto> LoginAsync(AuthLoginRequest authLoginRequest, CancellationToken cancellationToken)
+        public async Task<JwtDto> LoginAsync(AuthLoginRequest authLoginRequest, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(authLoginRequest.Email);
+            
+            var loginResult = await _signInManager.PasswordSignInAsync(user, authLoginRequest.Password, false, false);
+            
+            if (!loginResult.Succeeded)
+            {
+                throw new ValidationException(CreateValidationFailure);
+            }
+
+            return _jwtService.Generate(user.Id, user.Email, user.FirstName, user.LastName);
         }
 
         public async Task<JwtDto> SocialLoginAsync(string email, string firstName, string lastName, CancellationToken cancellationToken)
@@ -89,7 +99,13 @@ namespace Infrastructure.Services
         public async Task<string> GenerateActivationTokenAsync(string userId, CancellationToken cancellationToken)
         {
             var user= await _userManager.FindByIdAsync(userId);
+            
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
+        
+        private List<ValidationFailure> CreateValidationFailure => new List<ValidationFailure>()
+        {
+            new ValidationFailure("Email & Password","Your email or password is incorrect") //_localizer[CommonLocalizationKeys.Auth.EmailOrPasswordIsInCorrect]
+        };
     }
 }

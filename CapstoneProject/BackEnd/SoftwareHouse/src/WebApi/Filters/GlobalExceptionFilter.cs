@@ -9,21 +9,28 @@ namespace WebApi.Filters;
 
 public class GlobalExceptionFilter : IAsyncExceptionFilter
 {
+    private readonly ILogger<GlobalExceptionFilter> _logger;
+
+    public GlobalExceptionFilter(ILogger<GlobalExceptionFilter> logger)
+    {
+        _logger = logger;
+    }
 
     public Task OnExceptionAsync(ExceptionContext context)
     {
         ApiErrorDto apiErrorDto = new ApiErrorDto();
+
         switch (context.Exception)
         {
-            case ValidationException:
-                var validationException=context.Exception as ValidationException;
+            case ValidationException validationException:
+
                 var propertyNames = validationException.Errors
                     .Select(x => x.PropertyName)
                     .Distinct();
 
-                foreach(var propertyName in propertyNames)
+                foreach (var propertyName in propertyNames)
                 {
-                    var propertyFailures= validationException.Errors
+                    var propertyFailures = validationException.Errors
                         .Where(e => e.PropertyName == propertyName)
                         .Select(x => x.ErrorMessage)
                         .ToList();
@@ -31,21 +38,23 @@ public class GlobalExceptionFilter : IAsyncExceptionFilter
                     apiErrorDto.Errors.Add(new ErrorDto(propertyName, propertyFailures));
                 }
 
-                apiErrorDto.Message="Validation errors occured.";
+                apiErrorDto.Message = "Validation errors occured.";
+
                 //context.HttpContext.Response.StatusCode=(int)StatusCodes.Status400BadRequest;
-                context.Result= new BadRequestObjectResult(apiErrorDto);
+                context.Result = new BadRequestObjectResult(apiErrorDto);
+
                 break;
 
             default:
-                apiErrorDto.Message="Unidentified error accured.";
+                apiErrorDto.Message = "Unidentified error accured.";
                 //context.HttpContext.Response.StatusCode=(int)StatusCodes.Status500InternalServerError;
-                context.Result= new ObjectResult(apiErrorDto)
+                context.Result = new ObjectResult(apiErrorDto)
                 {
-                    StatusCode=(int)StatusCodes.Status500InternalServerError
+                    StatusCode = (int)StatusCodes.Status500InternalServerError
                 };
                 break;
         }
+
         return Task.CompletedTask;
-        
     }
 }

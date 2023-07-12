@@ -8,9 +8,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        //Bu kısım tam değil 20. ders 1.28 baka baka yap 
         // ID
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedOnAdd();
         
         // Name
         builder.Property(x => x.Name)
@@ -39,12 +39,27 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         // CreatedOn
         builder.Property(x => x.CreatedOn).IsRequired();
+        
+        //CreatedByUserId
+        builder.Property(x => x.CreatedByUserId)
+            .IsRequired(false)
+            .HasMaxLength(100);
 
         // ModifiedOn
         builder.Property(x => x.ModifiedOn).IsRequired(false);
+        
+        //ModifiedByUserId
+        builder.Property(x => x.ModifiedByUserId)
+            .IsRequired(false)
+            .HasMaxLength(100);
 
         // DeletedOn
         builder.Property(x => x.DeletedOn).IsRequired(false);
+        
+        //DeletedByUserId
+        builder.Property(x => x.DeletedByUserId)
+            .IsRequired(false)
+            .HasMaxLength(100);
 
         // IsDeleted
         builder.Property(x => x.IsDeleted).IsRequired();

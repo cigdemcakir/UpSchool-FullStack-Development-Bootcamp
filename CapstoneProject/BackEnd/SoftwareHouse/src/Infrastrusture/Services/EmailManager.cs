@@ -21,7 +21,7 @@ public class EmailManager : IEmailService
         
         sendEmailDto.EmailAddresses.ForEach(emailAddress => mail.To.Add(emailAddress));
         
-        mail.From=new MailAddress("noreply@entegraturk.com");
+        mail.From=new MailAddress("4softwarehouse4@gmail.com");
         
         mail.Subject=sendEmailDto.Title;
         
@@ -33,13 +33,13 @@ public class EmailManager : IEmailService
         
         client.Port=587;
         
-        client.Host="mail.entegraturk.com";
+        client.Host=""; //bu kısma eklenecek
         
-        client.EnableSsl = false;
+        client.EnableSsl = true;
         
         client.UseDefaultCredentials= false;
         
-        client.Credentials=new NetworkCredential("noreply@entegraturk.com", "xzx2xg4Jttrbzm5nIJ2kj1pE4l");
+        client.Credentials=new NetworkCredential("", ""); //bu kısımda ekleme olacak
         
         client.DeliveryMethod=SmtpDeliveryMethod.Network;
         

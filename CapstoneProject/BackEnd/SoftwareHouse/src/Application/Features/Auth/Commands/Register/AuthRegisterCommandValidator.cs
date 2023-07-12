@@ -20,11 +20,11 @@ namespace Application.Features.Auth.Commands.Register
                 .MustAsync(CheckIfUserExists)
                 .WithMessage("There is already an user with given email.");
         }
-
-
+        
         private async Task<bool> CheckIfUserExists(string email, CancellationToken cancellationToken)
         {
             var doesExist = await _authenticationService.CheckIfUserExists(email, cancellationToken);
+            
             if (doesExist) return false;
 
             return true;
