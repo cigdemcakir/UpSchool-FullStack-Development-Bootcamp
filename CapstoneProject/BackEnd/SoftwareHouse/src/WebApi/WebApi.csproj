@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
+      <ProjectReference Include="..\Crawler.WorkerService\Crawler.WorkerService.csproj" />
       <ProjectReference Include="..\Domain\Domain.csproj" />
       <ProjectReference Include="..\Infrastrusture\Infrastrusture.csproj" />
     </ItemGroup>

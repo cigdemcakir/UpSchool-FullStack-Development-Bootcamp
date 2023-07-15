@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Register;
 using Domain.Settings;
 using Google.Apis.Auth;
@@ -33,13 +34,18 @@ namespace WebApi.Controllers
         }
         
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginAsync(AuthRegisterCommand command)
+        public async Task<IActionResult> LoginAsync(AuthLoginCommand command)
         {
             return Ok(await Mediator.Send(command));
         }
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshTokenAsync(string accessToken)
+        {
+            return Ok();
+        }
         
-        [HttpPost("GoogleLoginInStart")]
-        public IActionResult GoogleSignInStartAsync(AuthRegisterCommand command)
+        [HttpGet("GoogleLoginInStart")]
+        public IActionResult GoogleSignInStartAsync()
         {
             var clientId = _googleSettings.ClientId;
 
@@ -49,11 +55,11 @@ namespace WebApi.Controllers
                                          $"scope=openid%20email%20profile&" +
                                          $"access_type=offline&" +
                                          $"redirect_uri={REDIRECT_URI}"; 
-
+          
             return Redirect(googleAuthorizationUrl);
         }
         
-        [HttpGet("GoogleLoginIn")]
+        [HttpGet("GoogleSignIn")]
         public async Task<IActionResult> GoogleSignInAsync(string code, CancellationToken cancellationToken)
         {
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer()
@@ -91,7 +97,7 @@ namespace WebApi.Controllers
 
             var query = await formContent.ReadAsStringAsync(cancellationToken);
 
-            var redirectUrl = $"http://127.0.0.1:5173/social-login?{query}"; //react kısmındaki url verilmeli, social-login göndermek istediğimiz route.
+            var redirectUrl = $"http://localhost:5173/social-login?{query}"; //react kısmındaki url verilmeli, social-login göndermek istediğimiz route.
 
             return Redirect(redirectUrl);
         }

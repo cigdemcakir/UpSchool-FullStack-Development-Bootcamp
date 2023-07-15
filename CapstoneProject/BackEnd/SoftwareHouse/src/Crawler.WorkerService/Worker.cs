@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR.Client;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using System.Collections.ObjectModel;
 using WebDriverManager.DriverConfigs.Impl;
 using WebDriverManager;
 using Application.Features.Orders.Commands.Add;
@@ -11,10 +9,8 @@ using Application.Features.OrderEvents.Commands.Add;
 using Application.Features.Products.Commands.Add;
 using Newtonsoft.Json;
 using System.Text;
-using System.Text.RegularExpressions;
 using Domain.Dtos;
 using Domain.Entities;
-using OpenQA.Selenium.DevTools;
 using Serilog;
 using Log = Serilog.Log;
 
@@ -54,84 +50,80 @@ public class Worker : BackgroundService
 
     private IWebDriver? driver;
     
-    HttpClient httpClient = new HttpClient();
+    HttpClient httpClient;
 
-    OrderAddCommand orderAddRequest = new OrderAddCommand();
+    OrderAddCommand orderAddRequest;
 
-    OrderEventAddCommand orderEventAddRequest = new OrderEventAddCommand();
+    OrderEventAddCommand orderEventAddRequest;
 
     public Worker(ILogger<Worker> logger)
     {
+        
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()  // İsteğe bağlı
+            .MinimumLevel.Debug()  
             .WriteTo.Console()
             .CreateLogger();
         
         _logger = logger;
         
-        Log.Information("Before");
-
-        new DriverManager().SetUpDriver(new ChromeConfig());
-        
-        Log.Information("After");
-    
-        //driver = new ChromeDriver();
-        driver = new ChromeDriver();
-        
-        Thread.Sleep(5);
-        
-        Log.Information("hi");
-
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(CrawlerHubUrl)
             .WithAutomaticReconnect()
             .Build();
+
+        //_hubConnection.StartAsync();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _hubConnection.On<int, string>("SendOrderNotificationAsync", async (productNumber, productCrawlType) =>
+        await Task.Delay(7000,stoppingToken);
+        _hubConnection.On<int, string>("NewOrderAdded", async (productNumber,productCrawlType) =>
         {
             try
             {
-                //_logger.LogInformation("Received SendOrderNotificationAsync message with productNumber {productNumber} and productCrawlType {productCrawlType}", productNumber, productCrawlType);
-                Log.Information("Received SendOrderNotificationAsync message with productNumber {productNumber} and productCrawlType {productCrawlType}", productNumber, productCrawlType);
+                Log.Information("signalr");
                 
-                crawlRequestAmount = productNumber.ToString();
-                productType = productCrawlType;
-
-                await Crawler();
+                await Crawler(productNumber,productCrawlType);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "An error occurred while processing SendOrderNotificationAsync event");
             }
-            
         });
-        Log.Information("execute");
         
         await _hubConnection.StartAsync(stoppingToken).ContinueWith(task => 
         {
             if (task.IsFaulted)
             {
-                Serilog.Log.Information(task.Exception, "An error occurred while connecting to the hub");
+                Log.Information(task.Exception, "An error occurred while connecting to the hub");
             }
             else
             {
                 Log.Information("Connected to the hub successfully");
-            }
-        });
-        
+            } 
+        }, stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            Log.Information("....");
             await Task.Delay(1000, stoppingToken);
         }
     }
 
-    async Task Crawler()
+    public async Task Crawler(int productNumber, string productCrawlType)
     {
         Log.Information("Crawler method started.");
+        
+        httpClient = new HttpClient();
+        
+        orderAddRequest = new OrderAddCommand();
+        
+        orderEventAddRequest = new OrderEventAddCommand();
+
+        new DriverManager().SetUpDriver(new ChromeConfig());
+    
+        driver = new ChromeDriver();
+        
+        Thread.Sleep(5);
         
         try
         {
@@ -146,10 +138,9 @@ public class Worker : BackgroundService
         
                 //await _hubConnection.StartAsync();
 
-                CreateOrder(productType);
+                CreateOrder(productCrawlType);
 
                 CreateOrderEvent(OrderStatus.BotStarted);
-
                 
                 Sleep(3);
 
@@ -159,18 +150,19 @@ public class Worker : BackgroundService
 
                 CreateOrderEvent(OrderStatus.CrawlingStarted);
 
-                bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
+                //bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
 
-                if (isNumber)
-                {
-                    var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
-
-                    CrawlProducts(crawlRequestNumber);
-                }
-                else
-                {
-                    CrawlProducts();
-                }
+                //if (isNumber)
+                // {
+                //     var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
+                //
+                //     CrawlProducts(crawlRequestNumber);
+                // }
+                // else
+                // {
+                //     CrawlProducts();
+                // }
+                CrawlProducts(productNumber);
 
                 CreateOrderEvent(OrderStatus.CrawlingCompleted);
 
@@ -204,7 +196,7 @@ public class Worker : BackgroundService
         }
         
     }
-    async void CrawlProducts(int? requestNumber = null)
+    async void CrawlProducts(/*int? requestNumber = null*/ int productNumber)
     {
         List<Product> productList = new List<Product>();
 
@@ -220,7 +212,9 @@ public class Worker : BackgroundService
 
             foreach (var productElement in products)
             {
-                if (requestNumber.HasValue && crawledProductCount == requestNumber)
+                // if (requestNumber.HasValue && crawledProductCount == requestNumber)
+                //     break;
+                if (crawledProductCount == productNumber)
                     break;
 
                 var isOnSale = productElement.FindElements(_onSale).Count != 0;
@@ -271,7 +265,7 @@ public class Worker : BackgroundService
 
             await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"{crawledProductCount}. product were crawled",Guid.Empty));
 
-            if (requestNumber.HasValue && crawledProductCount == requestNumber)
+            if (crawledProductCount == productNumber)
                 break;
 
             if (currentPage < pageLinks.Count && !string.IsNullOrEmpty(pageLinks[currentPage]))
@@ -286,6 +280,8 @@ public class Worker : BackgroundService
         Sleep(2);
 
         CreateOrderEvent(OrderStatus.OrderCompleted);
+        
+        Log.Information("bitti");
     }
 
     async void CreateOrderEvent(OrderStatus orderStatus)

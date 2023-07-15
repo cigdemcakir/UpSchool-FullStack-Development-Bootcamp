@@ -10,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
 
-    const jwtJson = localStorage.getItem("upstorage_user");
+    const jwtJson = localStorage.getItem("softwarehouse_user");
 
     if (jwtJson) {
 

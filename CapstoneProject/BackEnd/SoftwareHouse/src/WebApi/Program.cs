@@ -1,5 +1,6 @@
 using System.Text;
 using Application;
+using Crawler.WorkerService;
 using Infrastrusture;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Hubs;
@@ -92,6 +93,8 @@ try
                 .SetIsOriginAllowed((host) => true)
                 .AllowAnyHeader());
     });
+
+    builder.Services.AddHostedService<Worker>();
     
     var app = builder.Build();
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@microsoft/signalr": "^7.0.7",
+    "@reduxjs/toolkit": "^1.9.5",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
     "postcss": "^8.4.25",

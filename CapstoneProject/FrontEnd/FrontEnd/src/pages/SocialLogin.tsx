@@ -21,7 +21,7 @@ function SocialLogin() {
 
         const { uid, email, given_name, family_name} = getClaimsFromJwt(accessToken);
 
-        const expires:string = expiryDate;
+        const expires : string = expiryDate;
 
         setAppUser({ id:uid, email, firstName:given_name, lastName:family_name, expires, accessToken });
 
@@ -30,7 +30,7 @@ function SocialLogin() {
             expires
         }
 
-        localStorage.setItem("upstorage_user",JSON.stringify(localJwt));
+        localStorage.setItem("softwarehouse_user",JSON.stringify(localJwt));
 
         navigate("/");
 

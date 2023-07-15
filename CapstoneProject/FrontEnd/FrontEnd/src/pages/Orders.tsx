@@ -39,16 +39,14 @@ function OrderPage() {
         // Socket eventi tetikleniyor.
         if (connection) {
             try {
-                console.log('Sending order to server:', order);  // order'ın gönderilmeden önceki durumunu logla
+                console.log('Sending order to server:', order);
                 await connection.invoke('SendOrderNotificationAsync', productNumber, productCrawlType);
-                console.log('Order sent successfully.');  // order başarıyla gönderildiğinde log at
+                console.log('Order sent successfully.');
             } catch (error) {
-                console.error('Failed to send order:', error);  // Hata oluşursa, hata mesajını logla
+                console.error('Failed to send order:', error);
             }
         }
     };
-
-
 
     const handleCountChange = (e: ChangeEvent<HTMLInputElement>) => {
         setCount(Number(e.target.value));
@@ -64,7 +62,7 @@ function OrderPage() {
             console.log(`Order created! Count: ${count}, Crawl Type: ${crawlType}`);
 
             if (connection && connectionStarted) {
-                createOrder(count, crawlType);  // sipariş oluşturuluyor.
+                createOrder(count, crawlType);
             }
         } catch (error) {
             console.error('Failed to submit form:', error);
@@ -90,8 +88,49 @@ function OrderPage() {
                 <input type="submit" value="Create Order" className="w-full py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
             </form>
         </div>
+
+
+
     );
 }
 
 export default OrderPage;
 
+/*
+<div className="container" style={{ backgroundColor: '#333'}}>
+                    <div className="row justify-content-center">
+            <div className="col-md-7">
+                <div className="terminal shadow mt-1 mb-3 bg-light bg-opacity-10 rounded">
+                    <div className="top">
+                        <div className="title" style={{ color: '#fff3cd' }}>Product Crawler</div>
+                    </div>
+                    <div className="card-footer d-flex justify-content-between">
+                        <label htmlFor="requestedAmountInput" style={{ color: '#cdcbc2' }}>Product Count:</label>
+                        <input
+                            type="number"
+                            name="requestedAmount"
+                            value={count}
+                            onChange={handleCountChange}
+                            placeholder="Product Count"
+                            id="requestedAmountInput"
+                        />
+                        <label htmlFor="crawlTypeSelect" style={{ color: '#cdcbc2' }}>Crawl Type:</label>
+                        <select
+                            name="crawlType"
+                            value={crawlType}
+                            onChange={handleCrawlTypeChange}
+                            id="crawlTypeSelect"
+                        >
+                            <option value="All">All</option>
+                            <option value="OnSale">Sale</option>
+                            <option value="NormalPrice">Normal Price</option>
+                        </select>
+                    </div>
+                    <div className="card-footer d-flex justify-content-center">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ */
