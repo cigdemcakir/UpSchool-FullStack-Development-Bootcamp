@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "src\Application\Application.csproj", "{F1BF3CDA-EC08-434F-878E-AA630F46D326}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastrusture", "src\Infrastrusture\Infrastrusture.csproj", "{CDC574BF-2F26-49B1-9385-188DA5401A29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{CDC574BF-2F26-49B1-9385-188DA5401A29}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TheSoftwareHouse.CrawlerConsole", "src\TheSoftwareHouse.CrawlerConsole\TheSoftwareHouse.CrawlerConsole.csproj", "{65DF1302-4E19-4C44-BFF5-9AB64A27BE35}"
 EndProject

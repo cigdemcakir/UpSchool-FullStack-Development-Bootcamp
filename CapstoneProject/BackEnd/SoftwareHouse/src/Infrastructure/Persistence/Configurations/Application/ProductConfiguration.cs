@@ -20,12 +20,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         // Price
         builder.Property(x => x.Price)
             .IsRequired()
-            .HasColumnType("decimal(18,2");
+            .HasColumnType("decimal(10,2");
         
         // SalePrice
         builder.Property(x => x.SalePrice)
             .IsRequired(false)
-            .HasColumnType("decimal(18,2");
+            .HasColumnType("decimal(10,2");
         
         // Picture
         builder.Property(x => x.Picture)
@@ -44,27 +44,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.CreatedByUserId)
             .IsRequired(false)
             .HasMaxLength(100);
-
-        // ModifiedOn
-        builder.Property(x => x.ModifiedOn).IsRequired(false);
-        
-        //ModifiedByUserId
-        builder.Property(x => x.ModifiedByUserId)
-            .IsRequired(false)
-            .HasMaxLength(100);
-
-        // DeletedOn
-        builder.Property(x => x.DeletedOn).IsRequired(false);
-        
-        //DeletedByUserId
-        builder.Property(x => x.DeletedByUserId)
-            .IsRequired(false)
-            .HasMaxLength(100);
-
-        // IsDeleted
-        builder.Property(x => x.IsDeleted).IsRequired();
-        builder.Property(x => x.IsDeleted).HasDefaultValueSql("0");
-        builder.HasIndex(x => x.IsDeleted);
 
         // Relationships Product-Order
         builder.HasOne(x => x.Order)

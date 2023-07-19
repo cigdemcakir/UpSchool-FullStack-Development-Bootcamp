@@ -1,16 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using Application.Common.Interfaces;
 using Domain.Identity;
-using Infrastructure.Persistence.Contexts;
 using Infrastructure.Services;
-using Infrastrusture.Persistence;
+using Infrastructure.Persistence.Contexts;
 using Infrastrusture.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 
-namespace Infrastrusture;
+namespace Infrastructure;
 
 public static class ConfigureServices
 {

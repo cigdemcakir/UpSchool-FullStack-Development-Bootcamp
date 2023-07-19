@@ -46,8 +46,6 @@ namespace Application.Features.Products.Queries.GetAll
                     IsOnSale = product.IsOnSale,
                     Price = product.Price,
                     SalePrice = product.SalePrice,
-                    CreatedOn = product.CreatedOn.ToString("dd.MM.yyyy HH:mm"),
-
                 });
             }
 

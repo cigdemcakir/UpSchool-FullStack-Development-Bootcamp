@@ -15,22 +15,25 @@ namespace Application.Common.Models.Auth
         public string Password { get; set; }
         public CreateUserDto(string firstName, string lastName, string email, string password)
         {
-            FirstName=firstName;
-            LastName=lastName;
-            Email=email;
-            Password=password;
+            FirstName = firstName;
+
+            LastName = lastName;
+
+            Email = email;
+
+            Password = password;
         }
         public User MapToUser()
         {
             return new User()
             {
-                Id=Guid.NewGuid().ToString(),
-                Email=this.Email,
-                FirstName=this.FirstName,
-                LastName=this.LastName,
-                UserName= this.Email,
+                Id = Guid.NewGuid().ToString(),
+                Email = this.Email,
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                UserName = this.Email,
                 CreatedOn = DateTimeOffset.Now,
-                CreatedByUserId=null
+                CreatedByUserId = null
             };
         }
     }

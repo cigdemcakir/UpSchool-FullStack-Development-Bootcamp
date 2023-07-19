@@ -10,11 +10,12 @@ public class OrderConfiguration:IEntityTypeConfiguration<Order>
     {
         // ID
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
         // RequestedAmount
         builder.Property(x => x.RequestedAmount).IsRequired();
         
-        // TotalFoundAmound
+        // TotalFoundAmount
         builder.Property(x => x.TotalFoundAmount).IsRequired();
 
         // ProductCrawlType
@@ -29,25 +30,6 @@ public class OrderConfiguration:IEntityTypeConfiguration<Order>
         // CreatedByUserId
         builder.Property(x => x.CreatedByUserId).IsRequired(false)
             .HasMaxLength(100);
-
-        // ModifiedOn
-        builder.Property(x => x.ModifiedOn).IsRequired(false);
-        
-        // ModifiedByUserId
-        builder.Property(x => x.ModifiedByUserId).IsRequired(false)
-            .HasMaxLength(100);
-
-        // DeletedOn
-        builder.Property(x => x.DeletedOn).IsRequired(false);
-        
-        //DeletedByUserId
-        builder.Property(x => x.DeletedByUserId).IsRequired(false)
-            .HasMaxLength(100);
-
-        // IsDeleted
-        builder.Property(x => x.IsDeleted).IsRequired();
-        builder.Property(x => x.IsDeleted).HasDefaultValueSql("0");
-        builder.HasIndex(x => x.IsDeleted);
 
         // Relationships 
         builder.HasMany(x => x.OrderEvents)

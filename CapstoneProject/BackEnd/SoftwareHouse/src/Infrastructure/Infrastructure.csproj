@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>a8c037ec-c053-4abd-a965-566460b98afe</UserSecretsId>
+        <RootNamespace>Infrastrusture</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

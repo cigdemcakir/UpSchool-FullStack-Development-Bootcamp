@@ -25,13 +25,13 @@ public class ProductAddCommandHandler : IRequestHandler<ProductAddCommand, Respo
             IsOnSale = request.IsOnSale,
             SalePrice = request.SalePrice,
             CreatedOn = DateTimeOffset.Now,
-            IsDeleted = false
+            CreatedByUserId = null,
         };
 
         await _applicationDbContext.Products.AddAsync(product, cancellationToken);
         
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return new Response<Guid>($"The new product {product.Name} was successfully added to the db.", product.Id);
+        return new Response<Guid>($"The new product {product.Name} was successfully added", product.Id);
     }
 }

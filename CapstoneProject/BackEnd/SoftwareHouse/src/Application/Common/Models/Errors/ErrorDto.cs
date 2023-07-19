@@ -13,6 +13,7 @@ namespace Application.Common.Models.Errors
         public ErrorDto(string propertyName, List<string> errorMessages)
         {
             PropertyName=propertyName;
+            
             ErrorMessages=errorMessages;
         }
     }

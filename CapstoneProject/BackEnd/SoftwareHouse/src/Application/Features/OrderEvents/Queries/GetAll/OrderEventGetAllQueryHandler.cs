@@ -22,11 +22,6 @@ namespace Application.Features.OrderEvents.Queries.GetAll
         public async Task<List<OrderEventGetAllDto>> Handle(OrderEventGetAllQuery request, CancellationToken cancellationToken)
         {
             var dbQuery = _applicationDbContext.OrderEvents.AsQueryable();
-            
-            dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted);
-
-            if (request.IsDeleted.HasValue) 
-                dbQuery = dbQuery.Where(x => x.IsDeleted == request.IsDeleted.Value);
 
             var orderEvents = await dbQuery.ToListAsync(cancellationToken);
             
@@ -47,7 +42,6 @@ namespace Application.Features.OrderEvents.Queries.GetAll
                     Id = orderEvent.Id,
                     OrderId = orderEvent.OrderId,
                     Status = orderEvent.Status,
-                    IsDeleted = orderEvent.IsDeleted,
                 };
             }
 

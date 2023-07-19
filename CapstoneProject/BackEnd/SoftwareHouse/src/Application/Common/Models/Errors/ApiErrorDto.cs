@@ -12,7 +12,7 @@ namespace Application.Common.Models.Errors
         public List<ErrorDto> Errors { get; set;}
         public ApiErrorDto() 
         {
-            Errors=new List<ErrorDto>();
+            Errors = new List<ErrorDto>();
         }
         public ApiErrorDto(string message)
         {

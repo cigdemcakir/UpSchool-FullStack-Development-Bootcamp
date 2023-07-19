@@ -1,15 +1,12 @@
 using System.Text;
 using Application;
 using Crawler.WorkerService;
-using Infrastrusture;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Hubs;
 using Domain.Settings;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Linq;
 using WebApi.Filters;
 
 

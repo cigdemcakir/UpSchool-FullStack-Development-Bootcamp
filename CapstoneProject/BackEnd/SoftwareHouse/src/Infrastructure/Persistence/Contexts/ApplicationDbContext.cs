@@ -4,8 +4,7 @@ using Domain.Entities;
 using Domain.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastrusture.Persistence;
-//infrastructure katmanında entityframeworkcore ve core.design kurduk, artı olarak pomelo kurduk mariadb kullanımı için.
+namespace Infrastructure.Persistence.Contexts;
 public class ApplicationDbContext: DbContext,IApplicationDbContext
 {
     public DbSet<Product> Products { get; set; }

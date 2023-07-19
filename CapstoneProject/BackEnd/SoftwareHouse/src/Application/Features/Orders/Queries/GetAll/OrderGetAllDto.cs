@@ -13,6 +13,9 @@ namespace Application.Features.Orders.Queries.GetAll
         public int? RequestedAmount { get; set; }
         public int? TotalFoundAmount { get; set; }
         public ProductCrawlType ProductCrawlType { get; set; }
-        public bool? IsDeleted { get; set; }
+        
+        public DateTimeOffset CreatedOn { get; set; }
+    
+        public string? CreatedByUserId { get; set; }
     }
 }

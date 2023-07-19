@@ -27,6 +27,9 @@ namespace Application.Features.Orders.Commands.Add
                 RequestedAmount = request.RequestedAmount,
                 TotalFoundAmount = request.TotalFoundAmount,
                 ProductCrawlType = request.ProductCrawlType,
+                UserId = null,
+                CreatedOn = DateTimeOffset.Now,
+                CreatedByUserId = null,
             };
 
             await _applicationDbContext.Orders.AddAsync(order, cancellationToken);

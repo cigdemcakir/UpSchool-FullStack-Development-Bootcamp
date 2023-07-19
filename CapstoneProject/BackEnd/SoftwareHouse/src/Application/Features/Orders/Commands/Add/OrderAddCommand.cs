@@ -15,6 +15,8 @@ namespace Application.Features.Orders.Commands.Add
         public int? RequestedAmount { get; set; }
         public int? TotalFoundAmount { get; set; }
         public ProductCrawlType ProductCrawlType { get; set; }
-
+        
+        public DateTimeOffset CreatedOn { get; set; }
     }
 }
+

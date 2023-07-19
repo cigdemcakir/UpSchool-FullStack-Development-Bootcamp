@@ -15,7 +15,5 @@ namespace Application.Features.Products.Queries.GetAll
         public bool IsOnSale { get; set; }
         public decimal Price { get; set; }
         public decimal? SalePrice { get; set; }
-        
-        public string CreatedOn { get; set; }
     }
 }

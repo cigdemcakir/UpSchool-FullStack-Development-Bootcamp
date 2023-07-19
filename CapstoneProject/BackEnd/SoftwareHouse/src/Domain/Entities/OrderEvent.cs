@@ -8,5 +8,6 @@ public class OrderEvent:EntityBase<Guid>
     public  Guid  OrderId { get; set; }
     public  Order  Order { get; set; }
     public  OrderStatus  Status { get; set; }
+    public DateTimeOffset CreatedOn { get; set; }
     
 }

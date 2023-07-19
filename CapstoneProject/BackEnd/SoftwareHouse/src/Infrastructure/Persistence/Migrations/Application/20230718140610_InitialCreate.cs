@@ -19,13 +19,14 @@ namespace Infrastrusture.Persistence.Migrations.Application
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    UserId = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     RequestedAmount = table.Column<int>(type: "int", nullable: false),
                     TotalFoundAmount = table.Column<int>(type: "int", nullable: false),
                     ProductCrawlType = table.Column<int>(type: "int", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
-                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    DeletedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValueSql: "0")
+                    CreatedByUserId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -41,9 +42,8 @@ namespace Infrastrusture.Persistence.Migrations.Application
                     OrderId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
-                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    DeletedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValueSql: "0")
+                    CreatedByUserId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -71,9 +71,8 @@ namespace Infrastrusture.Persistence.Migrations.Application
                     Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     SalePrice = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
-                    ModifiedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    DeletedOn = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValueSql: "0")
+                    CreatedByUserId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -88,24 +87,9 @@ namespace Infrastrusture.Persistence.Migrations.Application
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderEvents_IsDeleted",
-                table: "OrderEvents",
-                column: "IsDeleted");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_OrderEvents_OrderId",
                 table: "OrderEvents",
                 column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_IsDeleted",
-                table: "Orders",
-                column: "IsDeleted");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_IsDeleted",
-                table: "Products",
-                column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_OrderId",

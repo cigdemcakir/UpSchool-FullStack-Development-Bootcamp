@@ -16,7 +16,5 @@ namespace Application.Common.Models.Auth
             
             Password=password;
         }
-
-      
     }
 }

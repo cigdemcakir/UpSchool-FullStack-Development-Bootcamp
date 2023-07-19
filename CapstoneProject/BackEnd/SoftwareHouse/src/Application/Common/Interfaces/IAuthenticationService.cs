@@ -8,7 +8,6 @@ public interface IAuthenticationService
     Task<string> GenerateActivationTokenAsync(string userId,CancellationToken cancellationToken);
     Task<bool> CheckIfUserExists(string email, CancellationToken cancellationToken);
     Task<JwtDto> LoginAsync(AuthLoginRequest authLoginRequest, CancellationToken cancellationToken);
-    
     Task<JwtDto> SocialLoginAsync(string email, string firstName, string lastName, CancellationToken cancellationToken);
 
 }

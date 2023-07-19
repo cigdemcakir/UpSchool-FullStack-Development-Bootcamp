@@ -73,13 +73,6 @@ namespace Infrastructure.Persistence.Configurations.Identity
             // CreatedByUserId
             builder.Property(user => user.CreatedByUserId).IsRequired(false);
 
-            // ModifiedDate
-            //builder.Property(user => user.ModifiedOn).IsRequired(false);
-
-            // ModifiedByUserId
-            //builder.Property(user => user.ModifiedByUserId).IsRequired(false);
-
-
             builder.ToTable("Users");
         }
     }

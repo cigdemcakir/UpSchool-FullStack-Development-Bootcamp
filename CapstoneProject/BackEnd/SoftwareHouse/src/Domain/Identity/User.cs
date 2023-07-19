@@ -9,16 +9,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Identity
 {
-    public class User : IdentityUser<string>, ICreatedByEntity, IModifiedByEntity
+    public class User : IdentityUser<string>, ICreatedByEntity
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
         public string? CreatedByUserId { get; set; }
-
-        public DateTimeOffset? ModifiedOn { get; set; }
-        
-        public string? ModifiedByUserId { get; set; }
 
         //public ICollection<Order> Orders { get; set; }
         
