@@ -112,6 +112,16 @@ public class Worker : BackgroundService
     public async Task Crawler(int productNumber, string productCrawlType)
     {
         Log.Information("Crawler method started.");
+
+        switch (productCrawlType)
+        {
+            case "All": productType = "A";
+                break;
+            case "Discount": productType = "B";
+                break;
+            case "Non-Discount": productType = "C";
+                break;
+        }
         
         httpClient = new HttpClient();
         
@@ -251,13 +261,13 @@ public class Worker : BackgroundService
 
                     await SendHttpPostRequest<ProductAddCommand, object>(httpClient, ProductsAddUrl, productAddRequest);
 
-                    await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
+                    /*await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
                         $"Product Name : {name}" + "   -    " +
                         $"Is On Sale ? :   {isOnSale}" + "   -    " +
                         $"Product Price :   {price}" + "   -    " +
                         $"Product Sale Price :   {salePrice}" + "   -    " +
                         $"Product Picture :   {picture}"+ "   -    "+  
-                        $"OrderId :   {productAddRequest.OrderId}",Guid.NewGuid()));
+                        $"OrderId :   {productAddRequest.OrderId}",Guid.NewGuid()));*/
 
                     Console.WriteLine($"Name: {name} -- OnSale: {isOnSale} -- Price: {price} -- Sale Price: {salePrice} -- Path: {picture}");
                 }
@@ -294,7 +304,7 @@ public class Worker : BackgroundService
 
         await SendHttpPostRequest<OrderEventAddCommand, object>(httpClient, OrderEventsAddUrl, orderEventAddRequest);
 
-        await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
+        //await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Order Status : " + orderEventAddRequest.Status.ToString(),Guid.Empty));
     }
 
     async void CreateOrder(string productType)

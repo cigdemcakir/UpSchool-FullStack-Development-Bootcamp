@@ -1,5 +1,5 @@
 import './App.css'
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 import Login from './pages/Login';
 import Orders from './pages/Orders';
 import Settings from './pages/Settings';
@@ -12,6 +12,7 @@ function App() {
 
   return (
       <Router>
+
           <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/social-login" element={<SocialLogin />} />
@@ -20,6 +21,7 @@ function App() {
               <Route path="/users" element={<Users />} />
           </Routes>
       </Router>
+
   )
 }
 

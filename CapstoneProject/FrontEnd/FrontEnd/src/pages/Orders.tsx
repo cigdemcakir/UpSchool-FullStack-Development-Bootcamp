@@ -1,8 +1,13 @@
-import {useState, ChangeEvent, FormEvent, useEffect} from 'react';
+import React, {useState, ChangeEvent, FormEvent, useEffect} from 'react';
 import useSignalR from '../hooks/useSignalR'
 import 'tailwindcss/tailwind.css'
+import {Grid} from "semantic-ui-react";
+import {Link} from "react-router-dom";
+import './LoginPage.css';
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
+
+
 
 function OrderPage() {
     const [count, setCount] = useState(0);
@@ -70,67 +75,56 @@ function OrderPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <h1 className="text-4xl font-bold mb-10 text-gray-700">Order Page</h1>
-            <form onSubmit={handleSubmit} className="p-10 bg-white rounded shadow-xl w-1/3">
-                <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-600">Product Count:</label>
-                    <input type="number" value={count} onChange={handleCountChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
-                </div>
-                <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-600">Product Crawl Type:</label>
-                    <select value={crawlType} onChange={handleCrawlTypeChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="all">All</option>
-                        <option value="discount">Discount</option>
-                        <option value="nondiscount">Non-Discount</option>
-                    </select>
-                </div>
-                <input type="submit" value="Create Order" className="w-full py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
-            </form>
-        </div>
+        <Grid textAlign='center' style={{ height: '100vh',
+            position: 'fixed',
+            width: '100%',
+            backgroundImage: `url(/bg.jpg)`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            backgroundPosition:'center'}} >
+            <Grid.Column style={{ maxWidth: 450 }}>
+                <header className="header">
+                    <nav className="nav">
+                        <a href="#" className="nav_logo">SoftwareHouse</a>
+                        <ul className="nav_items">
+                            <li className="nav_item">
+                                <a href="/" className="nav_link">Home</a>
+                                <Link to="/orders" className="nav_link">Orders</Link>
+                                <Link to="/settings" className="nav_link">Settings</Link>
+                                <Link to="/users" className="nav_link">Users</Link>
+                            </li>
+                        </ul>
+                        <button className="button" id="form-open">Login</button>
+                    </nav>
+                </header>
+                <section className={`home show`}>
+                    <div className="form_container">
+                        <div >
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-5">
+                                    <label className="block text-sm font-semibold text-gray-600">Product Count:</label>
+                                    <input type="number" value={count} onChange={handleCountChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                </div>
+                                <div className="mb-5">
+                                    <label className="block text-sm font-semibold text-gray-600">Product Crawl Type:</label>
+                                    <select value={crawlType} onChange={handleCrawlTypeChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <option value="all">All</option>
+                                        <option value="discount">Discount</option>
+                                        <option value="nondiscount">Non-Discount</option>
+                                    </select>
+                                </div>
+                                <input type="submit" value="Create Order" className="w-full py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </Grid.Column>
 
+        </Grid>
 
 
     );
 }
 
 export default OrderPage;
-
-/*
-<div className="container" style={{ backgroundColor: '#333'}}>
-                    <div className="row justify-content-center">
-            <div className="col-md-7">
-                <div className="terminal shadow mt-1 mb-3 bg-light bg-opacity-10 rounded">
-                    <div className="top">
-                        <div className="title" style={{ color: '#fff3cd' }}>Product Crawler</div>
-                    </div>
-                    <div className="card-footer d-flex justify-content-between">
-                        <label htmlFor="requestedAmountInput" style={{ color: '#cdcbc2' }}>Product Count:</label>
-                        <input
-                            type="number"
-                            name="requestedAmount"
-                            value={count}
-                            onChange={handleCountChange}
-                            placeholder="Product Count"
-                            id="requestedAmountInput"
-                        />
-                        <label htmlFor="crawlTypeSelect" style={{ color: '#cdcbc2' }}>Crawl Type:</label>
-                        <select
-                            name="crawlType"
-                            value={crawlType}
-                            onChange={handleCrawlTypeChange}
-                            id="crawlTypeSelect"
-                        >
-                            <option value="All">All</option>
-                            <option value="OnSale">Sale</option>
-                            <option value="NormalPrice">Normal Price</option>
-                        </select>
-                    </div>
-                    <div className="card-footer d-flex justify-content-center">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
- */
