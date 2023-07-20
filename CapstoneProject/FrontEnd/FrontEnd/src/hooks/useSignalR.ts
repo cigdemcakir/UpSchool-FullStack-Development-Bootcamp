@@ -20,10 +20,10 @@ const useSignalR = (url: string) => {
             try {
                 await connection.start();
                 setConnectionStarted(true);
-                console.log('Connection started successfully.'); // Connection başarılı bir şekilde başladığında log atıyoruz.
+                console.log('Connection started successfully.');
             } catch (error) {
-                console.error('Failed to start connection: ', error); // Bir hata oluşursa, hata mesajını logluyoruz.
-            } // Bağlantı başlatıldığında state'i güncelle
+                console.error('Failed to start connection: ', error);
+            }
         }
     };
 
@@ -32,10 +32,10 @@ const useSignalR = (url: string) => {
             try {
                 await connection.stop();
                 setConnectionStarted(false);
-                console.log('Connection stopped successfully.'); // Connection başarılı bir şekilde durduğunda log atıyoruz.
+                console.log('Connection stopped successfully.');
             } catch (error) {
-                console.error('Failed to stop connection: ', error); // Bir hata oluşursa, hata mesajını logluyoruz.
-            }  // Bağlantı durdurulduğunda state'i güncelle
+                console.error('Failed to stop connection: ', error);
+            }
         }
     };
 
@@ -43,14 +43,14 @@ const useSignalR = (url: string) => {
         if (connection) {
             try {
                 await connection.invoke(command, ...args);
-                console.log(`Command ${command} sent successfully.`); // Command başarılı bir şekilde gönderildiğinde log atıyoruz.
+                console.log(`Command ${command} sent successfully.`);
             } catch (error) {
-                console.error(`Failed to send command ${command}: `, error); // Bir hata oluşursa, hata mesajını logluyoruz.
+                console.error(`Failed to send command ${command}: `, error);
             }
         }
     };
 
-    return { startConnection, stopConnection, sendCommand, connection, connectionStarted };  // connectionStarted'ı döndür
+    return { startConnection, stopConnection, sendCommand, connection, connectionStarted };
 };
 
 export default useSignalR;

@@ -90,7 +90,7 @@ const Login = () => {
                             <a href="/" className="nav_link">Home</a>
                             <Link to="/orders" className="nav_link">Orders</Link>
                             <Link to="/settings" className="nav_link">Settings</Link>
-                            <Link to="/users" className="nav_link">Users</Link>
+                            <Link to="/livelogs" className="nav_link">LiveLogs</Link>
                         </li>
                     </ul>
                     <button className="button" id="form-open" onClick={toggleForm}>Login</button>

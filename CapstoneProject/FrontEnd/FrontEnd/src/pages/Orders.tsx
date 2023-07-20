@@ -1,6 +1,6 @@
-import React, {useState, ChangeEvent, FormEvent, useEffect} from 'react';
-import useSignalR from '../hooks/useSignalR'
-import 'tailwindcss/tailwind.css'
+import {useState, ChangeEvent, FormEvent, useEffect} from 'react';
+import useSignalR from '../hooks/useSignalR';
+import 'tailwindcss/tailwind.css';
 import {Grid} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import './LoginPage.css';
@@ -41,7 +41,6 @@ function OrderPage() {
             ProductCrawlType: productCrawlType,
         };
 
-        // Socket eventi tetikleniyor.
         if (connection) {
             try {
                 console.log('Sending order to server:', order);
@@ -92,7 +91,7 @@ function OrderPage() {
                                 <a href="/" className="nav_link">Home</a>
                                 <Link to="/orders" className="nav_link">Orders</Link>
                                 <Link to="/settings" className="nav_link">Settings</Link>
-                                <Link to="/users" className="nav_link">Users</Link>
+                                <Link to="/livelogs" className="nav_link">LiveLogs</Link>
                             </li>
                         </ul>
                         <button className="button" id="form-open">Login</button>
@@ -100,21 +99,22 @@ function OrderPage() {
                 </header>
                 <section className={`home show`}>
                     <div className="form_container">
-                        <div >
+                        <div>
                             <form onSubmit={handleSubmit}>
+                                <h2 className="text-xl font-bold mb-5">Crawler</h2>
                                 <div className="mb-5">
-                                    <label className="block text-sm font-semibold text-gray-600">Product Count:</label>
-                                    <input type="number" value={count} onChange={handleCountChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                    <label style={{ width: '120px', display: 'inline-block', marginTop:'20px' }} className="text-sm font-semibold text-gray-600">Product Count:</label>
+                                    <input style={{ width: '120px'}} type="number" value={count} onChange={handleCountChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                                 <div className="mb-5">
-                                    <label className="block text-sm font-semibold text-gray-600">Product Crawl Type:</label>
-                                    <select value={crawlType} onChange={handleCrawlTypeChange} className="w-full px-2 py-2 border rounded mt-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    <label style={{ width: '120px', display: 'inline-block' }} className="text-sm font-semibold text-gray-600">Crawl Type:</label>
+                                    <select value={crawlType} style={{ width: '120px'}} onChange={handleCrawlTypeChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
                                         <option value="all">All</option>
                                         <option value="discount">Discount</option>
                                         <option value="nondiscount">Non-Discount</option>
                                     </select>
                                 </div>
-                                <input type="submit" value="Create Order" className="w-full py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
+                                <input type="submit" value="Create Order" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', marginTop: '20px' }} className="py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
                             </form>
                         </div>
                     </div>

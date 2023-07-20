@@ -90,6 +90,9 @@ a {
     pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
 }
+.specificComponent .form_container {
+    max-width: 840px;
+}
 .signup_form {
     display: none;
 }
