@@ -93,6 +93,10 @@ a {
 .specificComponent .form_container {
     max-width: 840px;
 }
+.specificTable .form_container {
+    position: fixed;
+    top: 400px;
+}
 .signup_form {
     display: none;
 }

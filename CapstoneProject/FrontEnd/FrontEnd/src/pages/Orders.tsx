@@ -4,12 +4,19 @@ import 'tailwindcss/tailwind.css';
 import {Grid} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import './LoginPage.css';
+import * as XLSX from 'xlsx';
+import {useSignalRService} from "../context/SignalRContext.tsx";
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 
-
+type CrawlerLogDto = {
+    message: string;
+    id: string;
+};
 
 function OrderPage() {
+    const [orderLogs, setOrderLogs] = useState<CrawlerLogDto[]>([]);
+    const [productLogs, setProductLogs] = useState<CrawlerLogDto[]>([]);
     const [count, setCount] = useState(0);
     const [crawlType, setCrawlType] = useState('all');
     const { connection, connectionStarted, startConnection} = useSignalR(BASE_URL);
@@ -17,6 +24,68 @@ function OrderPage() {
     useEffect(() => {
         startConnection();
     }, [startConnection]);
+
+
+    useEffect(() => {
+        if (!connection) {
+            console.error("Connection failed!");
+            return;
+        }
+
+        if (connectionStarted) {
+            console.log("Connected successfully.");
+
+            const handleNewOrderLogAdded = (crawlerLogDto: CrawlerLogDto) => {
+                setOrderLogs(prevLogs => [...prevLogs, crawlerLogDto]);
+            };
+
+            connection.on("NewOrderAdded", handleNewOrderLogAdded);
+
+            // Olay dinleyicisini temizleme
+            return () => {
+                connection.off("NewOrderAdded", handleNewOrderLogAdded);
+            };
+
+        } else {
+            console.error("Connection not started yet.");
+        }
+
+    }, [connection, connectionStarted]);
+
+    useEffect(() => {
+        if (!connection) {
+            console.error("Connection failed!");
+            return;
+        }
+
+        if (connectionStarted) {
+            console.log("Connected successfully.");
+
+            const handleNewProductLogAdded = (crawlerLogDto: CrawlerLogDto) => {
+                setProductLogs(prevLogs => [...prevLogs, crawlerLogDto]);
+            };
+
+            connection.on("NewProductAdded", handleNewProductLogAdded);
+
+            // Olay dinleyicisini temizleme
+            return () => {
+                connection.off("NewProductAdded", handleNewProductLogAdded);
+            };
+
+        } else {
+            console.error("Connection not started yet.");
+        }
+
+    }, [connection, connectionStarted]);
+
+    const exportToExcel = () => {
+        const ws = XLSX.utils.json_to_sheet(productLogs);
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "ProductLogs");
+
+        XLSX.writeFile(wb, "product_logs.xlsx");
+    };
 
     const createOrder = async (productNumber: number, type: string) => {
         let productCrawlType = '';
@@ -117,8 +186,46 @@ function OrderPage() {
                                 <input type="submit" value="Create Order" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', marginTop: '20px' }} className="py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
                             </form>
                         </div>
+                        <button onClick={exportToExcel}>Export to Excel</button>
+                        <h2>Order Logs</h2>
+                        <table className="min-w-full border-collapse">
+                            <thead>
+                            <tr>
+                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Order ID</th>
+                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Order Message</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {orderLogs.map(log => (
+                                <tr key={log.id}>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.id}</td>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.message}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+
+                        <h2>Product Logs</h2>
+                        <table className="min-w-full border-collapse">
+                            <thead>
+                            <tr>
+                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Product ID</th>
+                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Product Message</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {productLogs.map(log => (
+                                <tr key={log.id}>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.id}</td>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.message}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+
                     </div>
                 </section>
+
             </Grid.Column>
 
         </Grid>

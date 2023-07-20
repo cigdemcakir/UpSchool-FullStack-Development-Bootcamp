@@ -261,13 +261,13 @@ public class Worker : BackgroundService
 
                     await SendHttpPostRequest<ProductAddCommand, object>(httpClient, ProductsAddUrl, productAddRequest);
 
-                    /*await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
+                    await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
                         $"Product Name : {name}" + "   -    " +
                         $"Is On Sale ? :   {isOnSale}" + "   -    " +
                         $"Product Price :   {price}" + "   -    " +
                         $"Product Sale Price :   {salePrice}" + "   -    " +
                         $"Product Picture :   {picture}"+ "   -    "+  
-                        $"OrderId :   {productAddRequest.OrderId}",Guid.NewGuid()));*/
+                        $"OrderId :   {productAddRequest.OrderId}",Guid.NewGuid()));
 
                     Console.WriteLine($"Name: {name} -- OnSale: {isOnSale} -- Price: {price} -- Sale Price: {salePrice} -- Path: {picture}");
                 }

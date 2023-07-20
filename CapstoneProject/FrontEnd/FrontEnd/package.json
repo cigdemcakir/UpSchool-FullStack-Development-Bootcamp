@@ -22,7 +22,8 @@
     "run": "^1.4.0",
     "semantic-ui-react": "^2.1.4",
     "tailwindcss": "^3.3.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
