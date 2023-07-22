@@ -4,7 +4,8 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 const useSignalR = (url: string) => {
     const [connection, setConnection] = useState<HubConnection | null>(null);
-    const [connectionStarted, setConnectionStarted] = useState<boolean>(false);  // Yeni eklenen state
+
+    const [connectionStarted, setConnectionStarted] = useState<boolean>(false);
 
     useEffect(() => {
         const newConnection = new HubConnectionBuilder()

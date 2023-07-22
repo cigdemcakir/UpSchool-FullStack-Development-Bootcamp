@@ -1,6 +1,5 @@
 import jwtDecode from "jwt-decode";
 
-
 export function getClaimsFromJwt(token: string) {
 
     const decodedJwt = jwtDecode(token);

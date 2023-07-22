@@ -19,11 +19,19 @@ function SocialLogin() {
 
         const expiryDate = searchParams.get("expiry_date");
 
+        if (!accessToken || !expiryDate) {
+            console.error("Token veya süre bilgisi bulunamadı.");
+            navigate("/");
+            return;
+        }
+
         const { uid, email, given_name, family_name} = getClaimsFromJwt(accessToken);
 
         const expires : string = expiryDate;
 
         setAppUser({ id:uid, email, firstName:given_name, lastName:family_name, expires, accessToken });
+
+        console.log("App User Updated:", { id:uid, email, firstName:given_name, lastName:family_name, expires, accessToken });
 
         const localJwt:LocalJwt ={
             accessToken,

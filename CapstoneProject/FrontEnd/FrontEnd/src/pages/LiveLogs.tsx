@@ -10,6 +10,7 @@ type CrawlerLogDto = {
 
 function LiveLogs() {
     const [logs, setLogs] = useState<CrawlerLogDto[]>([]);
+
     const { connection,connectionStarted } = useSignalRService();
 
     useEffect(() => {
@@ -27,7 +28,6 @@ function LiveLogs() {
 
             connection.on("NewCrawlerLogAdded", handleNewCrawlerLogAdded);
 
-            // Olay dinleyicisini temizleme
             return () => {
                 connection.off("NewCrawlerLogAdded", handleNewCrawlerLogAdded);
             };
@@ -37,8 +37,6 @@ function LiveLogs() {
         }
 
     }, [connection, connectionStarted]);
-
-
 
     return (
         <Grid textAlign='center' style={{ height: '100vh',

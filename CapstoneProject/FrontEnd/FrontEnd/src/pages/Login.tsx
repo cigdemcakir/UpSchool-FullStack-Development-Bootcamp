@@ -1,12 +1,15 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Grid} from "semantic-ui-react";
 import {AuthLoginCommand, LocalJwt} from "../types/AuthTypes.ts";
 import {AppUserContext} from "../context/StateContext.tsx";
 import './LoginPage.css';
 import {Link, useNavigate} from "react-router-dom";
 import api from "../utils/axiosInstance.ts";
-import {getClaimsFromJwt} from "../utils/jwtHelper.ts";
-import {toast} from "react-toastify";
+import { getClaimsFromJwt } from "../utils/jwtHelper.ts";
+import { toast } from "react-toastify";
+import { setEmail } from "../actions/emailActions.ts";
+import { useDispatch } from 'react-redux'
+import { useLocation } from 'react-router-dom';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -21,12 +24,22 @@ const Login = () => {
 
     const [authLoginCommand, setAuthLoginCommand] = useState<AuthLoginCommand>({email:"",password:""});
 
+    const dispatch = useDispatch();
+
+    const { shouldOpenLoginForm, setShouldOpenLoginForm } = useContext(AppUserContext);
+
     const [passwordVisibility, setPasswordVisibility] = useState({
         login: false,
         signup: false,
         confirm: false
     });
 
+    useEffect(() => {
+        if (shouldOpenLoginForm) {
+            toggleForm();  // Formu açan fonksiyon
+            setShouldOpenLoginForm(false);  // Resetleme
+        }
+    }, [shouldOpenLoginForm]);
     const handleSubmit = async (event:React.FormEvent) => {
 
         event.preventDefault();
@@ -41,6 +54,8 @@ const Login = () => {
 
                 setAppUser({ id:uid, email, firstName:given_name, lastName:family_name, expires, accessToken });
 
+                dispatch(setEmail(email));
+
                 const localJwt:LocalJwt ={
                     accessToken,
                     expires
@@ -48,6 +63,7 @@ const Login = () => {
 
                 localStorage.setItem("softwarehouse_user",JSON.stringify(localJwt));
                 navigate("/");
+
             } else{
                 toast.error(response.statusText);
             }
@@ -80,6 +96,7 @@ const Login = () => {
     };
 
     return (
+
         <Grid textAlign='center' style={{ height: '100vh' }}>
         <Grid.Column style={{ maxWidth: 450 }}>
             <header className="header">
@@ -149,7 +166,6 @@ const Login = () => {
                                 <i
                                     className={`uil ${passwordVisibility.signup ? "uil-eye" : "uil-eye-slash"} pw_hide`}
                                     onClick={() => togglePasswordVisibility('signup')}>
-
                                 </i>
                             </div>
                             <div className="input_box">

@@ -11,7 +11,7 @@ function SettingsPage() {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        // Burada backend ile iletişime geçip ayarları kaydedebilirsiniz.
+
         console.log(`Settings saved! Notification type: ${notificationType}`);
     };
 

@@ -1,4 +1,3 @@
-
 export type AccountGetAllDto = {
     id :string,
     title:string,

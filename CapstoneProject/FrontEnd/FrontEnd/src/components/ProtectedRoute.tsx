@@ -2,15 +2,21 @@ import React, {useContext} from "react";
 import {AppUserContext} from "../context/StateContext.tsx";
 import {Navigate} from "react-router-dom";
 
+
 type ProtectedRouteProps = {
-    children:React.ReactElement
+    children: React.ReactNode;
 }
-export default function ProtectedRoute( { children } : ProtectedRouteProps ) {
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+    const { appUser, redirectToLogin } = useContext(AppUserContext);
 
-    const { appUser } = useContext(AppUserContext);
+    console.log("ProtectedRoute - appUser Value:", appUser);
 
-    if(!appUser)
-        return <Navigate to="/login" />
+    if (!appUser) {
+        console.log("No appUser in ProtectedRoute. Navigating to login.");
+        redirectToLogin(); // Login formunu açmayı tetikle
+        return <Navigate to="/" replace />;
+    }
 
     return children;
 }
+

@@ -5,7 +5,13 @@ import {Grid} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import './LoginPage.css';
 import * as XLSX from 'xlsx';
-import {useSignalRService} from "../context/SignalRContext.tsx";
+import emailjs from '@emailjs/browser';
+import {useSelector} from "react-redux";
+import {RootState} from "../types";
+import {getClaimsFromJwt} from "../utils/jwtHelper.ts";
+import Login from "./Login.tsx";
+/*import { useRef } from 'react';*/
+/*import {useSignalRService} from "../context/SignalRContext.tsx";*/
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 
@@ -15,16 +21,22 @@ type CrawlerLogDto = {
 };
 
 function OrderPage() {
+
     const [orderLogs, setOrderLogs] = useState<CrawlerLogDto[]>([]);
+
     const [productLogs, setProductLogs] = useState<CrawlerLogDto[]>([]);
+
     const [count, setCount] = useState(0);
+
     const [crawlType, setCrawlType] = useState('all');
+
     const { connection, connectionStarted, startConnection} = useSignalR(BASE_URL);
+
+    const email = useSelector((state: RootState) => state.email);
 
     useEffect(() => {
         startConnection();
     }, [startConnection]);
-
 
     useEffect(() => {
         if (!connection) {
@@ -41,7 +53,6 @@ function OrderPage() {
 
             connection.on("NewOrderAdded", handleNewOrderLogAdded);
 
-            // Olay dinleyicisini temizleme
             return () => {
                 connection.off("NewOrderAdded", handleNewOrderLogAdded);
             };
@@ -67,7 +78,6 @@ function OrderPage() {
 
             connection.on("NewProductAdded", handleNewProductLogAdded);
 
-            // Olay dinleyicisini temizleme
             return () => {
                 connection.off("NewProductAdded", handleNewProductLogAdded);
             };
@@ -78,13 +88,76 @@ function OrderPage() {
 
     }, [connection, connectionStarted]);
 
+    const jwtJson = localStorage.getItem("softwarehouse_user");
+
+    if (!jwtJson) {
+        return <Login showForm={true} />;
+    }
+
+    /*const form = useRef();*/
+
+    const sendEmail = (e) => {
+        e.preventDefault();
+
+        const localUser = localStorage.getItem("softwarehouse_user");
+
+        if (localUser) {
+            const parsedUser = JSON.parse(localUser);
+            const accessTokenFromLocalStorage = parsedUser?.accessToken;
+
+            if (accessTokenFromLocalStorage) {
+                const { email } = getClaimsFromJwt(accessTokenFromLocalStorage);
+                if (email) {
+                    console.log("E-posta adresi:", email);
+
+                    const orderLogsStr = orderLogs.map(log => `${log.id} - ${log.message}`).join('\n');
+                    const productLogsStr = productLogs.map(log => `${log.id} - ${log.message}`).join('\n');
+
+                    const allLogsStr = `Order Logs:\n${orderLogsStr}\n\nProduct Logs:\n${productLogsStr}`;
+
+                    emailjs.send("", "", {
+                        logs: allLogsStr,
+                        to_email: email,
+                    }, "")
+
+                        .then((result) => {
+                            console.log('E-posta başarıyla gönderildi:', result.text);
+                        }, (error) => {
+                            console.error('E-posta gönderiminde bir hata oluştu:', error.text);
+                        });
+                } else {
+                    console.error("E-posta adresi token içerisinde bulunamadı.");
+                }
+            } else {
+                console.error("localStorage'da accessToken bulunamadı.");
+            }
+        } else {
+            console.error("localStorage'da kullanıcı bilgisi bulunamadı.");
+        }
+
+
+    };
     const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(productLogs);
-
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "ProductLogs");
 
-        XLSX.writeFile(wb, "product_logs.xlsx");
+        const data = productLogs.map(log => [log.id, log.message]);
+
+        data.unshift(["ID", "Message"]);
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+
+        ws['A1'].s = {
+            font: { bold: true },
+            fill: { bgColor: { rgb: "FFFF00" } }
+        };
+        ws['B1'].s = {
+            font: { bold: true },
+            fill: { bgColor: { rgb: "FFFF00" } }
+        };
+
+        XLSX.utils.book_append_sheet(wb, ws, "Order");
+
+        XLSX.writeFile(wb, "OrderDetail.xlsx");
     };
 
     const createOrder = async (productNumber: number, type: string) => {
@@ -137,12 +210,14 @@ function OrderPage() {
             if (connection && connectionStarted) {
                 createOrder(count, crawlType);
             }
+
         } catch (error) {
             console.error('Failed to submit form:', error);
         }
     };
 
     return (
+
         <Grid textAlign='center' style={{ height: '100vh',
             position: 'fixed',
             width: '100%',
@@ -187,6 +262,7 @@ function OrderPage() {
                             </form>
                         </div>
                         <button onClick={exportToExcel}>Export to Excel</button>
+                        <button onClick={sendEmail}>Send Mail</button>
                         <h2>Order Logs</h2>
                         <table className="min-w-full border-collapse">
                             <thead>
@@ -204,7 +280,6 @@ function OrderPage() {
                             ))}
                             </tbody>
                         </table>
-
                         <h2>Product Logs</h2>
                         <table className="min-w-full border-collapse">
                             <thead>
@@ -222,12 +297,9 @@ function OrderPage() {
                             ))}
                             </tbody>
                         </table>
-
                     </div>
                 </section>
-
             </Grid.Column>
-
         </Grid>
 
 

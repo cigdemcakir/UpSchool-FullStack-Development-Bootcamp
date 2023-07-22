@@ -6,6 +6,7 @@ import {AccountGetAllDto} from "../types/AccountTypes.ts";
 export type AppUserContextType = {
     appUser:LocalUser | undefined,
     setAppUser:React.Dispatch<React.SetStateAction<LocalUser | undefined>>,
+
 }
 
 export const AppUserContext = createContext<AppUserContextType>({

@@ -2,12 +2,11 @@
 import {NavLink} from "react-router-dom";*/
 import "./Navbar.css";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function Navbar() {
 
 
-
 }
-
 export default Navbar;
 
 /*
