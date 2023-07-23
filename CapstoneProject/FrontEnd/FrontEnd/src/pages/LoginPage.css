@@ -6,6 +6,59 @@
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
 }
+
+@keyframes scaleFromCenter {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.scaleUpAnimation {
+    animation: scaleFromCenter 0.3s ease-in-out forwards;
+    transform: translate(-50%, -50%) scale(0);
+}
+.minBackground {
+    background-color: #7d2ae8;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    display: inline-block;
+    border: none;
+    margin: 5px 0;
+    transition: background-color 0.3s, transform 0.3s; /* geçiş efektleri */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* hafif bir gölge efekti */
+    text-align: center;
+    font-size: 16px;
+}
+.minBackground:hover {
+    background-color: #7d2ae8; /* fareyle üzerine gelindiğinde daha koyu bir maviye dönüşecek */
+    transform: translateY(-2px); /* yukarı doğru hafif bir hareket efekti */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* daha belirgin bir gölge efekti */
+}
+
+.minBackground:active {
+    transform: translateY(0); /* butona basıldığında orijinal pozisyona dönecek */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* orijinal gölge efekti */
+}
+
+.h2Container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+}
+.centerContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.h2Center {
+    text-align: center;
+}
+
 a {
     text-decoration: none;
 }
@@ -90,8 +143,19 @@ a {
     pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
 }
+
 .specificComponent .form_container {
     max-width: 840px;
+}
+.usersComponent .form_container {
+    max-width: 840px;
+}
+
+.crawler .form_container {
+    max-width: 1200px;
+    height: 640px;
+    background:white;
+
 }
 .specificTable .form_container {
     position: fixed;
@@ -117,8 +181,11 @@ a {
 }
 .form_container h2 {
     font-size: 22px;
-    color: #0b0217;
+    color: white;
     text-align: center;
+}
+.login {
+    color: white;
 }
 .input_box {
     position: relative;
@@ -165,6 +232,7 @@ a {
     align-items: center;
     justify-content: space-between;
 }
+
 .form_container a {
     color: #7d2ae8;
     font-size: 12px;
@@ -184,7 +252,7 @@ a {
     font-size: 12px;
     cursor: pointer;
     user-select: none;
-    color: #0b0217;
+    color: #7d2ae8;
 }
 .form_container .button {
     display: flex;
@@ -202,3 +270,42 @@ a {
     text-align: center;
     margin-top: 15px;
 }
+table {
+    border-collapse: collapse; /* Tablo çerçevelerini birleştir */
+    width: 100%; /* Tam genişlik */
+}
+
+th, td {
+    border: 1px solid #ddd; /* Hafif gri bir sınır */
+    padding: 8px; /* İç dolgu */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* İki satırda bir hafif gri arka plan (isteğe bağlı) */
+}
+.user-icon {
+    width: 36px;
+    height: 36px;
+}
+.userTable {
+    border: 2px solid #7d2ae8;
+    border-radius: 5px;
+}
+
+.userTable td, .userTable th {
+    border: 1px solid #7d2ae8; /* Siyah renkte 1px kalınlığında sınır */
+}
+.userTable td, .userTable th {
+    border-top: 1px solid #7d2ae8;
+    border-bottom: 1px solid #7d2ae8;
+}
+
+.userTable td, .userTable th {
+    border-left: 1px solid #7d2ae8;
+    border-right: 1px solid #7d2ae8;
+}
+/*
+tr:hover {
+    background-color: #7d2ae8; /* Satırın fareyle üzerine gelindiğinde renk değişimi (isteğe bağlı) */
+
+

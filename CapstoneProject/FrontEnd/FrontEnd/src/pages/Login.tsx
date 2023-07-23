@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useState } from "react";
 import {Grid} from "semantic-ui-react";
 import {AuthLoginCommand, LocalJwt} from "../types/AuthTypes.ts";
 import {AppUserContext} from "../context/StateContext.tsx";
@@ -9,7 +9,6 @@ import { getClaimsFromJwt } from "../utils/jwtHelper.ts";
 import { toast } from "react-toastify";
 import { setEmail } from "../actions/emailActions.ts";
 import { useDispatch } from 'react-redux'
-import { useLocation } from 'react-router-dom';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -20,13 +19,11 @@ const Login = () => {
 
     const navigate = useNavigate();
 
-    const { setAppUser } = useContext(AppUserContext);
+    const { appUser, setAppUser } = useContext(AppUserContext);
 
     const [authLoginCommand, setAuthLoginCommand] = useState<AuthLoginCommand>({email:"",password:""});
 
     const dispatch = useDispatch();
-
-    const { shouldOpenLoginForm, setShouldOpenLoginForm } = useContext(AppUserContext);
 
     const [passwordVisibility, setPasswordVisibility] = useState({
         login: false,
@@ -34,12 +31,7 @@ const Login = () => {
         confirm: false
     });
 
-    useEffect(() => {
-        if (shouldOpenLoginForm) {
-            toggleForm();  // Formu açan fonksiyon
-            setShouldOpenLoginForm(false);  // Resetleme
-        }
-    }, [shouldOpenLoginForm]);
+
     const handleSubmit = async (event:React.FormEvent) => {
 
         event.preventDefault();
@@ -49,7 +41,7 @@ const Login = () => {
 
             if(response.status === 200){
                 const accessToken = response.data.accessToken;
-                const { uid, email, given_name, family_name} = getClaimsFromJwt(accessToken);
+                const { uid, email, given_name, family_name } = getClaimsFromJwt(accessToken);
                 const expires:string = response.data.expires;
 
                 setAppUser({ id:uid, email, firstName:given_name, lastName:family_name, expires, accessToken });
@@ -106,19 +98,25 @@ const Login = () => {
                         <li className="nav_item">
                             <a href="/" className="nav_link">Home</a>
                             <Link to="/orders" className="nav_link">Orders</Link>
-                            <Link to="/settings" className="nav_link">Settings</Link>
+                            <Link to="/users" className="nav_link">Users</Link>
                             <Link to="/livelogs" className="nav_link">LiveLogs</Link>
                         </li>
                     </ul>
-                    <button className="button" id="form-open" onClick={toggleForm}>Login</button>
+                    { appUser ? (
+                        <Link to="/users">
+                            <img src="/user.png" alt="User Icon" className="user-icon" />
+                        </Link>
+                    ) : (
+                        <button className="button" id="form-open" onClick={toggleForm}>Login</button>
+                    )}
                 </nav>
             </header>
             <section className={`home ${isFormOpen ? "show" : ""}`}>
                 <div className="form_container">
                     <i className="uil uil-times form_close" onClick={toggleForm}></i>
-                    <div className={`form ${isSignUpActive ? "active" : ""}`}>
+                    <div style={{textAlign:'center'}} className={`form ${isSignUpActive ? "active" : ""}`}>
                         <form action="#">
-                            <h2>Login</h2>
+                            <h2  className="minBackground">Login</h2>
                             <div className="input_box">
                                 <input type="email" placeholder="Enter your email" required/>
                                 <i className="uil uil-envelope-alt email"></i>

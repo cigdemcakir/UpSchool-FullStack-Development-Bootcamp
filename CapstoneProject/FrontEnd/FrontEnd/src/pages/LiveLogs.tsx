@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import { Link } from "react-router-dom";
 import { Grid } from "semantic-ui-react";
 import { useSignalRService } from '../context/SignalRContext';
+import {AppUserContext} from "../context/StateContext.tsx";
 
 type CrawlerLogDto = {
     message: string;
@@ -12,6 +13,8 @@ function LiveLogs() {
     const [logs, setLogs] = useState<CrawlerLogDto[]>([]);
 
     const { connection,connectionStarted } = useSignalRService();
+
+    const { appUser } = useContext(AppUserContext);
 
     useEffect(() => {
         if (!connection) {
@@ -55,18 +58,22 @@ function LiveLogs() {
                             <li className="nav_item">
                                 <a href="/" className="nav_link">Home</a>
                                 <Link to="/orders" className="nav_link">Orders</Link>
-                                <Link to="/settings" className="nav_link">Settings</Link>
+                                <Link to="/users" className="nav_link">Users</Link>
                                 <Link to="/livelogs" className="nav_link">LiveLogs</Link>
                             </li>
                         </ul>
-                        <button className="button" id="form-open">Login</button>
+                        { appUser ? ( // appUser değişkenini kontrol edin
+                            <img src="/user.png" alt="User Icon" className="user-icon" />
+                        ) : (
+                            <button className="button" id="form-open" >Login</button>
+                        )}
                     </nav>
                 </header>
                 <div>
                     <section className={`home show specificComponent`}>
                         <div className="form_container" >
-                            <h1>Crawler Logs</h1>
-                            <div style={{ backgroundColor: 'black', color: 'lime', padding: '10px', fontFamily: 'Courier', whiteSpace: 'pre-line' }}>
+                            <h1 className="minBackground" style={{marginBottom:'20px'}}>Crawler Logs</h1>
+                            <div style={{ backgroundColor: '#16141E', color: '#7d2ae8', padding: '10px', fontFamily: 'Courier', whiteSpace: 'pre-line' }}>
                                 {logs.map(log => `${new Date().toLocaleString()}: ${log.message}`).join('\n')}
                             </div>
                         </div>

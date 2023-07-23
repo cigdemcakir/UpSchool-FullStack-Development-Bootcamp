@@ -2,8 +2,8 @@ import './App.css';
 import { BrowserRouter as Router } from "react-router-dom";
 import Login from './pages/Login';
 import Orders from './pages/Orders';
-import Settings from './pages/Settings';
 import LiveLogs from './pages/LiveLogs.tsx';
+import Users from "./pages/Users.tsx";
 import SocialLogin from "./pages/SocialLogin.tsx";
 import { useEffect, useState } from "react";
 import { useSignalRService } from "./context/SignalRContext.tsx";
@@ -24,20 +24,12 @@ function AuthHandler() {
         }
     }, [navigate]);
 
-    useEffect(() => {
-        const protectedRoutes = ['/orders', '/settings', '/livelogs'];
-
-        if (!appUser && protectedRoutes.includes(location.pathname)) {
-            redirectToLogin();
-        }
-    }, [location.pathname, appUser]);
-
     return (
         <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/social-login" element={<SocialLogin />} />
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
             <Route path="/livelogs" element={<ProtectedRoute><LiveLogs /></ProtectedRoute>} />
         </Routes>
     );

@@ -176,7 +176,7 @@ public class Worker : BackgroundService
 
                 CreateOrderEvent(OrderStatus.CrawlingCompleted);
 
-                await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
+                //await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
 
                 Sleep(2);
 
@@ -218,6 +218,8 @@ public class Worker : BackgroundService
 
         for (var currentPage = 1; currentPage <= pageLinks.Count; currentPage++)
         {
+            await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog($"Moved to {currentPage}. Page!",Guid.Empty));
+            
             var products = driver.FindElements(_productsLocator);
 
             foreach (var productElement in products)

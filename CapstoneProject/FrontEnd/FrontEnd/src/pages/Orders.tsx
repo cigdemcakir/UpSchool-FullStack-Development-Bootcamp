@@ -1,4 +1,4 @@
-import {useState, ChangeEvent, FormEvent, useEffect} from 'react';
+import {useState, ChangeEvent, FormEvent, useEffect, useContext} from 'react';
 import useSignalR from '../hooks/useSignalR';
 import 'tailwindcss/tailwind.css';
 import {Grid} from "semantic-ui-react";
@@ -10,6 +10,7 @@ import {useSelector} from "react-redux";
 import {RootState} from "../types";
 import {getClaimsFromJwt} from "../utils/jwtHelper.ts";
 import Login from "./Login.tsx";
+import {AppUserContext} from "../context/StateContext.tsx";
 /*import { useRef } from 'react';*/
 /*import {useSignalRService} from "../context/SignalRContext.tsx";*/
 
@@ -20,6 +21,23 @@ type CrawlerLogDto = {
     id: string;
 };
 
+function parseProductData(data) {
+    const parts = data.split("   -    ");
+
+    const getName = (str) => str.split(": ")[1];
+
+    const product = {
+        Name: getName(parts[0]),
+        IsOnSale: getName(parts[1]) === 'true',
+        Price: parseFloat(getName(parts[2])),
+        SalePrice: parseFloat(getName(parts[3])),
+        Picture: getName(parts[4]),
+        OrderId: getName(parts[5])
+    };
+
+    return product;
+}
+
 function OrderPage() {
 
     const [orderLogs, setOrderLogs] = useState<CrawlerLogDto[]>([]);
@@ -28,9 +46,13 @@ function OrderPage() {
 
     const [count, setCount] = useState(0);
 
+    const [showTable, setShowTable] = useState(false);
+
     const [crawlType, setCrawlType] = useState('all');
 
     const { connection, connectionStarted, startConnection} = useSignalR(BASE_URL);
+
+    const { appUser } = useContext(AppUserContext);
 
     const email = useSelector((state: RootState) => state.email);
 
@@ -234,69 +256,76 @@ function OrderPage() {
                             <li className="nav_item">
                                 <a href="/" className="nav_link">Home</a>
                                 <Link to="/orders" className="nav_link">Orders</Link>
-                                <Link to="/settings" className="nav_link">Settings</Link>
+                                <Link to="/users" className="nav_link">Users</Link>
                                 <Link to="/livelogs" className="nav_link">LiveLogs</Link>
                             </li>
                         </ul>
-                        <button className="button" id="form-open">Login</button>
+                        { appUser ? (
+                            <Link to="/users">
+                                <img src="/user.png" alt="User Icon" className="user-icon" />
+                            </Link>
+                        ) : (
+                            <button className="button" id="form-open" >Login</button>
+                        )}
                     </nav>
                 </header>
-                <section className={`home show`}>
-                    <div className="form_container">
+                <section className={`home show crawler`}>
+                    <div className="form_container scaleUpAnimation">
                         <div>
                             <form onSubmit={handleSubmit}>
-                                <h2 className="text-xl font-bold mb-5">Crawler</h2>
-                                <div className="mb-5">
-                                    <label style={{ width: '120px', display: 'inline-block', marginTop:'20px' }} className="text-sm font-semibold text-gray-600">Product Count:</label>
-                                    <input style={{ width: '120px'}} type="number" value={count} onChange={handleCountChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                <div className="h2Container">
+                                    <h2 style={{ marginTop:'10px'}} className="text-xl font-bold mb-5 minBackground">Product Crawler</h2>
                                 </div>
-                                <div className="mb-5">
-                                    <label style={{ width: '120px', display: 'inline-block' }} className="text-sm font-semibold text-gray-600">Crawl Type:</label>
-                                    <select value={crawlType} style={{ width: '120px'}} onChange={handleCrawlTypeChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                                        <option value="all">All</option>
+                                <div className="mb-5 h2Container">
+                                    <label style={{ width: '150px', display: 'inline-block', marginTop:'44px', marginRight:'20px', marginLeft:'20px'}} className="text-sm font-semibold text-gray-600 minBackground">Product Count:</label>
+                                    <input style={{ width: '60px', height:'30px',marginTop:'40px', textAlign:'center', borderColor:'purple'}} type="number" min="1"  value={count} onChange={handleCountChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 "/>
+                                    <label style={{ width: '125px', marginLeft:'20px', marginTop:'44px'}} className="text-sm font-semibold text-gray-600 minBackground">Crawl Type:</label>
+                                    <select value={crawlType} style={{ width: '120px', marginLeft:'20px', marginTop:'40px', borderColor:'purple', height:'30px'}} onChange={handleCrawlTypeChange} className="w-2/3 px-2 py-2 border rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <option value="all" >All</option>
                                         <option value="discount">Discount</option>
                                         <option value="nondiscount">Non-Discount</option>
                                     </select>
+                                    <input type="submit" value="Create Order" style={{ marginLeft:'40px', marginTop: '40px' }} className="minBackground"/>
                                 </div>
-                                <input type="submit" value="Create Order" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', marginTop: '20px' }} className="py-2 px-4 rounded text-white bg-blue-500 hover:bg-blue-600 focus:outline-none"/>
-                            </form>
+                                </form>
+                            <div style={{margin:'center', display:'center', marginLeft:'300px'}}>
+                                <button style={{marginTop:'38px', marginLeft:'70px'}} onClick={() => setShowTable(!showTable)} className="minBackground">Get Order Details</button>
+                                <button style={{marginLeft:'10px'}} onClick={exportToExcel} className="minBackground">Export to Excel</button>
+                                <button style={{marginLeft:'10px'}} onClick={sendEmail} className="minBackground">Send Mail</button>
+                            </div>
+                            {showTable && (
+                                <table className="userTable" style={{ textAlign: "center", marginTop:'40px'}}>
+                                    <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Is On Sale?</th>
+                                        <th>Product Price</th>
+                                        <th>Sale Price</th>
+                                        <th>Picture</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {productLogs.map((log, index) => {
+                                        const product = parseProductData(log.message);
+                                        return (
+                                            <tr key={index}>
+                                                <td>{product.Name}</td>
+                                                <td>{product.IsOnSale ? 'Yes' : 'No'}</td>
+                                                <td>{product.Price}</td>
+                                                <td>{product.SalePrice}</td>
+                                                <td><img src={product.Picture} alt="Product" width="50" height="50" /></td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
+                                </table>
+                            )}
+
                         </div>
-                        <button onClick={exportToExcel}>Export to Excel</button>
-                        <button onClick={sendEmail}>Send Mail</button>
-                        <h2>Order Logs</h2>
-                        <table className="min-w-full border-collapse">
-                            <thead>
-                            <tr>
-                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Order ID</th>
-                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Order Message</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {orderLogs.map(log => (
-                                <tr key={log.id}>
-                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.id}</td>
-                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.message}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                        <h2>Product Logs</h2>
-                        <table className="min-w-full border-collapse">
-                            <thead>
-                            <tr>
-                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Product ID</th>
-                                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Product Message</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {productLogs.map(log => (
-                                <tr key={log.id}>
-                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.id}</td>
-                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">{log.message}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+
+                        <div>
+
+                        </div>
                     </div>
                 </section>
             </Grid.Column>
