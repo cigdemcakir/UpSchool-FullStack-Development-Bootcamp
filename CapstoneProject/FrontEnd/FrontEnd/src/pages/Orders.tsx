@@ -26,11 +26,14 @@ function parseProductData(data) {
 
     const getName = (str) => str.split(": ")[1];
 
+    const regularPrice = parseFloat(getName(parts[2]));
+    const salePrice = parseFloat(getName(parts[3]));
+
     const product = {
         Name: getName(parts[0]),
-        IsOnSale: getName(parts[1]) === 'true',
-        Price: parseFloat(getName(parts[2])),
-        SalePrice: parseFloat(getName(parts[3])),
+        IsOnSale: !isNaN(salePrice) && salePrice !== regularPrice, // Adjusted this line
+        Price: regularPrice,
+        SalePrice: salePrice,
         Picture: getName(parts[4]),
         OrderId: getName(parts[5])
     };
@@ -54,7 +57,12 @@ function OrderPage() {
 
     const { appUser } = useContext(AppUserContext);
 
+    const [notifications, setNotifications] = useState<string[]>(['Welcome!']);
+
+    const [isNotificationsOpen, setNotificationsOpen] = useState(false);
+
     const email = useSelector((state: RootState) => state.email);
+
 
     useEffect(() => {
         startConnection();
@@ -67,23 +75,24 @@ function OrderPage() {
         }
 
         if (connectionStarted) {
-            console.log("Connected successfully.");
+            console.log('Connected successfully.');
 
             const handleNewOrderLogAdded = (crawlerLogDto: CrawlerLogDto) => {
-                setOrderLogs(prevLogs => [...prevLogs, crawlerLogDto]);
+                setOrderLogs((prevLogs) => [...prevLogs, crawlerLogDto]);
+                setNotifications((prevNotifications) => [...prevNotifications, crawlerLogDto.message]);
             };
 
-            connection.on("NewOrderAdded", handleNewOrderLogAdded);
+            connection.on('NewOrderAdded', handleNewOrderLogAdded);
 
             return () => {
-                connection.off("NewOrderAdded", handleNewOrderLogAdded);
+                connection.off('NewOrderAdded', handleNewOrderLogAdded);
             };
-
         } else {
-            console.error("Connection not started yet.");
+            console.error('Connection not started yet.');
         }
-
     }, [connection, connectionStarted]);
+
+
 
     useEffect(() => {
         if (!connection) {
@@ -116,10 +125,44 @@ function OrderPage() {
         return <Login showForm={true} />;
     }
 
-    /*const form = useRef();*/
+    const createEmailContent = () => {
+        let content = `
+        <h2>Order Details</h2>
+        <table border="1" style="border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #FF5733; color: white;">
+                    <th>Product Name</th>
+                    <th>Is On Sale?</th>
+                    <th>Product Price</th>
+                    <th>Sale Price</th>
+                    <th>Product</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+        productLogs.forEach(log => {
+            const product = parseProductData(log.message);
+            content += `
+            <tr>
+                <td>${product.Name}</td>
+                <td>${product.IsOnSale ? 'Yes' : 'No'}</td>
+                <td>${product.Price}</td>
+                <td>${isNaN(product.SalePrice) ? '-' : product.SalePrice}</td>
+                <td><img src="${product.Picture}" alt="Product" width="50" height="50" /></td>
+            </tr>
+        `;
+        });
+
+        content += `</tbody></table>`;
+
+        return content;
+    }
 
     const sendEmail = (e) => {
         e.preventDefault();
+
+        const emailContent = createEmailContent();
 
         const localUser = localStorage.getItem("softwarehouse_user");
 
@@ -140,6 +183,7 @@ function OrderPage() {
                     emailjs.send("", "", {
                         logs: allLogsStr,
                         to_email: email,
+                        message:emailContent
                     }, "")
 
                         .then((result) => {
@@ -162,25 +206,71 @@ function OrderPage() {
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
 
-        const data = productLogs.map(log => [log.id, log.message]);
+        // Map product logs to a format that matches the table.
+        const data = productLogs.map(log => {
+            const product = parseProductData(log.message);
+            return [
+                product.Name,
+                product.IsOnSale ? 'Yes' : 'No',
+                product.Price,
+                isNaN(product.SalePrice) ? '-' : product.SalePrice,
+                product.Picture  // Note: Images in Excel might not be directly supported this way.
+            ];
+        });
 
-        data.unshift(["ID", "Message"]);
+        // Insert the header at the beginning of the data array.
+        data.unshift(["Product Name", "Is On Sale?", "Product Price", "Sale Price", "Product"]);
 
         const ws = XLSX.utils.aoa_to_sheet(data);
 
-        ws['A1'].s = {
-            font: { bold: true },
-            fill: { bgColor: { rgb: "FFFF00" } }
-        };
-        ws['B1'].s = {
-            font: { bold: true },
-            fill: { bgColor: { rgb: "FFFF00" } }
-        };
+        // Sütun genişliklerini ayarlama
+        ws['!cols'] = [
+            { width: 30 },
+            { width: 10 },
+            { width: 12 },
+            { width: 10 },
+            { width: 50 }  // Image columns might require different adjustments.
+        ];
+
+        // Sütun başlıkları için stil ayarlama
+        const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1'];
+        headerCells.forEach(cell => {
+            ws[cell].s = {
+                font: {
+                    bold: true,
+                    sz: 16,  // font size
+                    color: { rgb: "FFFFFF" }
+                },
+                fill: {
+                    patternType: "solid",
+                    bgColor: { rgb: "FF5733" }  // Fill color for the header
+                },
+                alignment: {
+                    vertical: "center",
+                    horizontal: "center"
+                }
+            };
+        });
+
+        for (let i = 2; i <= data.length; i++) {
+            const rowCells = ['A' + i, 'B' + i, 'C' + i, 'D' + i, 'E' + i];
+            const color = (i % 2 === 0) ? { rgb: "0000FF" } : { rgb: "FFFFFF" };
+
+            rowCells.forEach(cell => {
+                if (!ws[cell]) ws[cell] = { v: "" };  // hücre yoksa oluştur
+                ws[cell].s = {
+                    fill: {
+                        patternType: "solid",
+                        fgColor: color
+                    }
+                };
+            });
+        }
 
         XLSX.utils.book_append_sheet(wb, ws, "Order");
-
-        XLSX.writeFile(wb, "OrderDetail.xlsx");
+        XLSX.writeFile(wb, "OrderDetails.xlsx");
     };
+
 
     const createOrder = async (productNumber: number, type: string) => {
         let productCrawlType = '';
@@ -215,6 +305,7 @@ function OrderPage() {
             }
         }
     };
+
 
     const handleCountChange = (e: ChangeEvent<HTMLInputElement>) => {
         setCount(Number(e.target.value));
@@ -261,12 +352,28 @@ function OrderPage() {
                             </li>
                         </ul>
                         { appUser ? (
-                            <Link to="/users">
-                                <img src="/user.png" alt="User Icon" className="user-icon" />
-                            </Link>
-                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div onClick={() => setNotificationsOpen(prev => !prev)} style={{ marginRight: '20px' }}>
+                                    <img src="/bell.png" alt="Notifications Icon" className="notifications-icon" />
+                                    {notifications.length > 0 && <span className="notification-count">1</span>}
+                                    {isNotificationsOpen && (
+                                        <div className="notifications-menu">
+                                            {notifications.map((notification, index) => (
+                                                <div key={index} className="notification-item">
+                                                    {notification}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <Link to="/users">
+                                    <img src="/user.png" alt="User Icon" className="user-icon" />
+                                </Link>
+                            </div>) : (
                             <button className="button" id="form-open" >Login</button>
                         )}
+
+
                     </nav>
                 </header>
                 <section className={`home show crawler`}>
@@ -292,7 +399,7 @@ function OrderPage() {
                                 <button style={{marginTop:'38px'}} onClick={() => setShowTable(!showTable)} className="minBackground">Get Order Details</button>
                                 <button style={{marginLeft:'10px'}} onClick={exportToExcel} className="minBackground">Export to Excel</button>
                                 <button style={{marginLeft:'10px'}} onClick={sendEmail} className="minBackground">Send Mail</button>
-                                <button style={{marginLeft:'10px'}} className="minBackground">Delete Order</button>
+                                <button style={{marginLeft:'10px'}} onClick={() => setProductLogs([])}  className="minBackground">Delete Order</button>
                             </div>
                             {showTable && (
                                 <table className="userTable" style={{ textAlign: "center", marginTop:'40px'}}>
@@ -313,7 +420,7 @@ function OrderPage() {
                                                 <td>{product.Name}</td>
                                                 <td>{product.IsOnSale ? 'Yes' : 'No'}</td>
                                                 <td>{product.Price}</td>
-                                                <td>{product.SalePrice}</td>
+                                                <td>{isNaN(product.SalePrice) ? '-' : product.SalePrice}</td>
                                                 <td><img src={product.Picture} alt="Product" width="50" height="50" /></td>
                                             </tr>
                                         );

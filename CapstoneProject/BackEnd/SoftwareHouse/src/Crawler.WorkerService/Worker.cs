@@ -44,7 +44,6 @@ public class Worker : BackgroundService
     #endregion
     
     string productType;
-    string? salePrice = null;
     string crawlRequestAmount;
     int crawledProductCount;
 
@@ -70,8 +69,6 @@ public class Worker : BackgroundService
             .WithUrl(CrawlerHubUrl)
             .WithAutomaticReconnect()
             .Build();
-
-        //_hubConnection.StartAsync();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -144,60 +141,35 @@ public class Worker : BackgroundService
                 driver.Navigate().GoToUrl(HomePageUrl);
                 
                 Sleep(3);
+                
                 crawledProductCount = 0;
-        
-                //await _hubConnection.StartAsync();
 
                 CreateOrder(productCrawlType);
 
                 CreateOrderEvent(OrderStatus.BotStarted);
                 
+                //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog("Bot Started",Guid.Empty));
+                
                 Sleep(3);
 
                 await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Navigated to UpStorage Shop",Guid.Empty));
+                
+                //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog("Crawling Started",Guid.Empty));
 
                 Sleep(2);
 
                 CreateOrderEvent(OrderStatus.CrawlingStarted);
-
-                //bool isNumber = Regex.IsMatch(crawlRequestAmount, @"^\d+$");
-
-                //if (isNumber)
-                // {
-                //     var crawlRequestNumber = Convert.ToInt32(crawlRequestAmount);
-                //
-                //     CrawlProducts(crawlRequestNumber);
-                // }
-                // else
-                // {
-                //     CrawlProducts();
-                // }
+                
                 CrawlProducts(productNumber);
 
                 CreateOrderEvent(OrderStatus.CrawlingCompleted);
 
-                //await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
-
                 Sleep(2);
 
                 CreateOrderEvent(OrderStatus.OrderCompleted);
-
-                // Console.WriteLine("Do you want to continue crawling? (y/n)");
-                // var answer = Console.ReadLine();
-                //
-                // if (answer?.ToLower() == "y")
-                //     await _hubConnection.StopAsync();
-                // else
-                //     break;
-                Console.WriteLine("Do you want to continue crawling? (y/n)");
-                var answer = Console.ReadLine();
-            
-                if (answer?.ToLower() == "y")
-                    continueCrawling = true;
-                else
-                    continueCrawling = false;
+                
+                //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog("Order Completed",Guid.Empty));
             }
-
         }
         catch (Exception e)
         {
@@ -224,8 +196,8 @@ public class Worker : BackgroundService
 
             foreach (var productElement in products)
             {
-                // if (requestNumber.HasValue && crawledProductCount == requestNumber)
-                //     break;
+                string? salePrice = null;
+                
                 if (crawledProductCount == productNumber)
                     break;
 
@@ -244,6 +216,10 @@ public class Worker : BackgroundService
                         salePrice = productElement.FindElement(_productOnSalePrice).Text;
                         salePrice = salePrice.Replace("$", "");
                     }
+                    else
+                    {
+                        salePrice = "-";
+                    }
 
                     price = price.Replace("$", "");
 
@@ -257,7 +233,7 @@ public class Worker : BackgroundService
                         Name = name,
                         IsOnSale = isOnSale,
                         Price = decimal.Parse(price),
-                        SalePrice = decimal.Parse(salePrice),
+                        SalePrice = salePrice == "-" ? (decimal?)null : decimal.Parse(salePrice),
                         Picture = picture,
                     };
 
@@ -265,13 +241,11 @@ public class Worker : BackgroundService
 
                     await _hubConnection.InvokeAsync("SendProductNotificationAsync", CreateLog(
                         $"Product Name : {name}" + "   -    " +
-                        $"Is On Sale ? :   {isOnSale}" + "   -    " +
+                        $"Is On Sale ? :   {(isOnSale ? "true" : "false")}" + "   -    " +
                         $"Product Price :   {price}" + "   -    " +
                         $"Product Sale Price :   {salePrice}" + "   -    " +
                         $"Product Picture :   {picture}"+ "   -    "+  
                         $"OrderId :   {productAddRequest.OrderId}",Guid.NewGuid()));
-
-                    Console.WriteLine($"Name: {name} -- OnSale: {isOnSale} -- Price: {price} -- Sale Price: {salePrice} -- Path: {picture}");
                 }
             }
 
@@ -286,14 +260,14 @@ public class Worker : BackgroundService
             }
         }
         CreateOrderEvent(OrderStatus.CrawlingCompleted);
+        
+        //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog("Crawling Completed",Guid.Empty));
 
         await _hubConnection.InvokeAsync("SendLogNotificationAsync", CreateLog("Mission Accomplished!",Guid.Empty));
 
         Sleep(2);
 
         CreateOrderEvent(OrderStatus.OrderCompleted);
-        
-        Log.Information("bitti");
     }
 
     async void CreateOrderEvent(OrderStatus orderStatus)

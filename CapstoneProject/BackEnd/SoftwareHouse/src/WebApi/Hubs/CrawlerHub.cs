@@ -18,7 +18,7 @@ public class CrawlerHub:Hub
         await Clients.AllExcept(Context.ConnectionId)
             .SendAsync("NewProductAdded", log); 
     }
-    
+
     public async Task SendOrderNotificationAsync(int productNumber, string productCrawlType)
     {
           await Clients.All

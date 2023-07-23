@@ -279,10 +279,6 @@ th, td {
     border: 1px solid #ddd; /* Hafif gri bir sınır */
     padding: 8px; /* İç dolgu */
 }
-
-tr:nth-child(even) {
-    background-color: #f2f2f2; /* İki satırda bir hafif gri arka plan (isteğe bağlı) */
-}
 .user-icon {
     width: 36px;
     height: 36px;
@@ -304,8 +300,34 @@ tr:nth-child(even) {
     border-left: 1px solid #7d2ae8;
     border-right: 1px solid #7d2ae8;
 }
-/*
-tr:hover {
-    background-color: #7d2ae8; /* Satırın fareyle üzerine gelindiğinde renk değişimi (isteğe bağlı) */
+.notifications-icon {
+    position: relative;
+}
+
+.notification-count {
+    position: absolute;
+    top: 10px;
+    right: 400px;
+    width: 20px;
+    height: 25px;
+    background-color: white;
+    color: #7d2ae8;
+    border-radius: 50%;
+    padding: 2px 5px;
+}
+
+.notifications-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    width: 200px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
 
 
