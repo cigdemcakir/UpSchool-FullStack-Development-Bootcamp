@@ -289,9 +289,10 @@ function OrderPage() {
                                 </div>
                                 </form>
                             <div style={{margin:'center', display:'center', marginLeft:'300px'}}>
-                                <button style={{marginTop:'38px', marginLeft:'70px'}} onClick={() => setShowTable(!showTable)} className="minBackground">Get Order Details</button>
+                                <button style={{marginTop:'38px'}} onClick={() => setShowTable(!showTable)} className="minBackground">Get Order Details</button>
                                 <button style={{marginLeft:'10px'}} onClick={exportToExcel} className="minBackground">Export to Excel</button>
                                 <button style={{marginLeft:'10px'}} onClick={sendEmail} className="minBackground">Send Mail</button>
+                                <button style={{marginLeft:'10px'}} className="minBackground">Delete Order</button>
                             </div>
                             {showTable && (
                                 <table className="userTable" style={{ textAlign: "center", marginTop:'40px'}}>
@@ -301,7 +302,7 @@ function OrderPage() {
                                         <th>Is On Sale?</th>
                                         <th>Product Price</th>
                                         <th>Sale Price</th>
-                                        <th>Picture</th>
+                                        <th>Product</th>
                                     </tr>
                                     </thead>
                                     <tbody>
