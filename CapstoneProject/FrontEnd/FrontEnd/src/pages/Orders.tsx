@@ -11,8 +11,7 @@ import {RootState} from "../types";
 import {getClaimsFromJwt} from "../utils/jwtHelper.ts";
 import Login from "./Login.tsx";
 import {AppUserContext} from "../context/StateContext.tsx";
-/*import { useRef } from 'react';*/
-/*import {useSignalRService} from "../context/SignalRContext.tsx";*/
+import * as ExcelJS from "exceljs";
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 
@@ -125,44 +124,10 @@ function OrderPage() {
         return <Login showForm={true} />;
     }
 
-    const createEmailContent = () => {
-        let content = `
-        <h2>Order Details</h2>
-        <table border="1" style="border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #FF5733; color: white;">
-                    <th>Product Name</th>
-                    <th>Is On Sale?</th>
-                    <th>Product Price</th>
-                    <th>Sale Price</th>
-                    <th>Product</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
 
-        productLogs.forEach(log => {
-            const product = parseProductData(log.message);
-            content += `
-            <tr>
-                <td>${product.Name}</td>
-                <td>${product.IsOnSale ? 'Yes' : 'No'}</td>
-                <td>${product.Price}</td>
-                <td>${isNaN(product.SalePrice) ? '-' : product.SalePrice}</td>
-                <td><img src="${product.Picture}" alt="Product" width="50" height="50" /></td>
-            </tr>
-        `;
-        });
-
-        content += `</tbody></table>`;
-
-        return content;
-    }
 
     const sendEmail = (e) => {
         e.preventDefault();
-
-        const emailContent = createEmailContent();
 
         const localUser = localStorage.getItem("softwarehouse_user");
 
@@ -202,8 +167,10 @@ function OrderPage() {
 
 
     };
-    const exportToExcel = () => {
-        const wb = XLSX.utils.book_new();
+
+    const exportToExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Order");
 
         const data = productLogs.map(log => {
             const product = parseProductData(log.message);
@@ -218,52 +185,57 @@ function OrderPage() {
 
         data.unshift(["Product Name", "Is On Sale?", "Product Price", "Sale Price", "Product"]);
 
-        const ws = XLSX.utils.aoa_to_sheet(data);
+        data.forEach((row, rowIndex) => {
+            const worksheetRow = worksheet.addRow(row);
 
-        ws['!cols'] = [
+            if (rowIndex === 0) {
+                worksheetRow.eachCell((cell) => {
+                    cell.font = {
+                        bold: true,
+                        size: 16,
+                        color: { argb: "FFFFFF" }
+                    };
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFdf9fe0" }
+                    };
+                    cell.alignment = {
+                        vertical: "middle",
+                        horizontal: "center"
+                    };
+                });
+            }
+
+            else {
+                worksheetRow.eachCell((cell) => {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: (rowIndex % 2 === 0) ? "FF4a9af0" : "FFFFFF" }
+                    };
+                    cell.alignment = {
+                        vertical: "middle",
+                        horizontal: "center"
+                    };
+                });
+            }
+        });
+
+        worksheet.columns = [
+            { width: 50 },
             { width: 30 },
-            { width: 10 },
-            { width: 12 },
-            { width: 10 },
+            { width: 40 },
+            { width: 40 },
             { width: 50 }
         ];
 
-        const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1'];
-        headerCells.forEach(cell => {
-            ws[cell].s = {
-                font: {
-                    bold: true,
-                    sz: 16,  // font size
-                    color: { rgb: "FFFFFF" }
-                },
-                fill: {
-                    patternType: "solid",
-                    bgColor: { rgb: "FF5733" }  // Fill color for the header
-                },
-                alignment: {
-                    vertical: "center",
-                    horizontal: "center"
-                }
-            };
-        });
-
-        for (let i = 2; i <= data.length; i++) {
-            const rowCells = ['A' + i, 'B' + i, 'C' + i, 'D' + i, 'E' + i];
-            const color = (i % 2 === 0) ? { rgb: "0000FF" } : { rgb: "FFFFFF" };
-
-            rowCells.forEach(cell => {
-                if (!ws[cell]) ws[cell] = { v: "" };  // hücre yoksa oluştur
-                ws[cell].s = {
-                    fill: {
-                        patternType: "solid",
-                        fgColor: color
-                    }
-                };
-            });
-        }
-
-        XLSX.utils.book_append_sheet(wb, ws, "Order");
-        XLSX.writeFile(wb, "OrderDetails.xlsx");
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "OrderDetails.xlsx";
+        link.click();
     };
 
 
