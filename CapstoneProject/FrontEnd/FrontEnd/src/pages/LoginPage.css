@@ -145,7 +145,7 @@ a {
 }
 
 .specificComponent .form_container {
-    max-width: 840px;
+    max-width: 400px;
 }
 .usersComponent .form_container {
     max-width: 840px;

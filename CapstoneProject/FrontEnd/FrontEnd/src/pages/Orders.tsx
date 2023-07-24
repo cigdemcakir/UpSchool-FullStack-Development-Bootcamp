@@ -175,15 +175,14 @@ function OrderPage() {
                 if (email) {
                     console.log("E-posta adresi:", email);
 
-                    const orderLogsStr = orderLogs.map(log => `${log.id} - ${log.message}`).join('\n');
-                    const productLogsStr = productLogs.map(log => `${log.id} - ${log.message}`).join('\n');
+                    const productLogsStr = productLogs.map(log => log.message).join('\n');
 
-                    const allLogsStr = `Order Logs:\n${orderLogsStr}\n\nProduct Logs:\n${productLogsStr}`;
+                    const allLogsStr = `Product Logs:\n${productLogsStr}`;
 
                     emailjs.send("", "", {
                         logs: allLogsStr,
                         to_email: email,
-                        message:emailContent
+                        message:allLogsStr
                     }, "")
 
                         .then((result) => {
@@ -206,7 +205,6 @@ function OrderPage() {
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
 
-        // Map product logs to a format that matches the table.
         const data = productLogs.map(log => {
             const product = parseProductData(log.message);
             return [
@@ -214,25 +212,22 @@ function OrderPage() {
                 product.IsOnSale ? 'Yes' : 'No',
                 product.Price,
                 isNaN(product.SalePrice) ? '-' : product.SalePrice,
-                product.Picture  // Note: Images in Excel might not be directly supported this way.
+                product.Picture
             ];
         });
 
-        // Insert the header at the beginning of the data array.
         data.unshift(["Product Name", "Is On Sale?", "Product Price", "Sale Price", "Product"]);
 
         const ws = XLSX.utils.aoa_to_sheet(data);
 
-        // Sütun genişliklerini ayarlama
         ws['!cols'] = [
             { width: 30 },
             { width: 10 },
             { width: 12 },
             { width: 10 },
-            { width: 50 }  // Image columns might require different adjustments.
+            { width: 50 }
         ];
 
-        // Sütun başlıkları için stil ayarlama
         const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1'];
         headerCells.forEach(cell => {
             ws[cell].s = {
@@ -372,8 +367,6 @@ function OrderPage() {
                             </div>) : (
                             <button className="button" id="form-open" >Login</button>
                         )}
-
-
                     </nav>
                 </header>
                 <section className={`home show crawler`}>
@@ -394,7 +387,7 @@ function OrderPage() {
                                     </select>
                                     <input type="submit" value="Create Order" style={{ marginLeft:'40px', marginTop: '40px' }} className="minBackground"/>
                                 </div>
-                                </form>
+                            </form>
                             <div style={{margin:'center', display:'center', marginLeft:'300px'}}>
                                 <button style={{marginTop:'38px'}} onClick={() => setShowTable(!showTable)} className="minBackground">Get Order Details</button>
                                 <button style={{marginLeft:'10px'}} onClick={exportToExcel} className="minBackground">Export to Excel</button>
@@ -428,11 +421,8 @@ function OrderPage() {
                                     </tbody>
                                 </table>
                             )}
-
                         </div>
-
                         <div>
-
                         </div>
                     </div>
                 </section>

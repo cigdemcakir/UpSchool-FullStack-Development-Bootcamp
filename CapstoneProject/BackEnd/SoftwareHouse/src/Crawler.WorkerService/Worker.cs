@@ -140,7 +140,7 @@ public class Worker : BackgroundService
             {
                 driver.Navigate().GoToUrl(HomePageUrl);
                 
-                Sleep(3);
+                Sleep(4);
                 
                 crawledProductCount = 0;
 
