@@ -328,6 +328,21 @@ th, td {
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }
-
+.tableComponent {
+    max-height: 340px;
+    overflow-y: scroll;
+}
+.userTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+}
+.userTable thead div {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    z-index: 2;
+}
 
 

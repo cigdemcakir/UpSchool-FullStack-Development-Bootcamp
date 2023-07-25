@@ -4,7 +4,6 @@ import 'tailwindcss/tailwind.css';
 import {Grid} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import './LoginPage.css';
-import * as XLSX from 'xlsx';
 import emailjs from '@emailjs/browser';
 import {useSelector} from "react-redux";
 import {RootState} from "../types";
@@ -12,6 +11,7 @@ import {getClaimsFromJwt} from "../utils/jwtHelper.ts";
 import Login from "./Login.tsx";
 import {AppUserContext} from "../context/StateContext.tsx";
 import * as ExcelJS from "exceljs";
+import { useNavigate } from 'react-router-dom';
 
 const BASE_URL = import.meta.env.VITE_CRAWLERHUB_URL;
 
@@ -61,6 +61,8 @@ function OrderPage() {
     const [isNotificationsOpen, setNotificationsOpen] = useState(false);
 
     const email = useSelector((state: RootState) => state.email);
+
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -164,8 +166,6 @@ function OrderPage() {
         } else {
             console.error("localStorage'da kullanıcı bilgisi bulunamadı.");
         }
-
-
     };
 
     const exportToExcel = async () => {
@@ -294,6 +294,13 @@ function OrderPage() {
         } catch (error) {
             console.error('Failed to submit form:', error);
         }
+/*
+        setTimeout(() => {
+            navigate('/livelogs');
+        }, 3000);
+
+ */
+
     };
 
     return (
@@ -367,31 +374,33 @@ function OrderPage() {
                                 <button style={{marginLeft:'10px'}} onClick={() => setProductLogs([])}  className="minBackground">Delete Order</button>
                             </div>
                             {showTable && (
-                                <table className="userTable" style={{ textAlign: "center", marginTop:'40px'}}>
-                                    <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Is On Sale?</th>
-                                        <th>Product Price</th>
-                                        <th>Sale Price</th>
-                                        <th>Product</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {productLogs.map((log, index) => {
-                                        const product = parseProductData(log.message);
-                                        return (
-                                            <tr key={index}>
-                                                <td>{product.Name}</td>
-                                                <td>{product.IsOnSale ? 'Yes' : 'No'}</td>
-                                                <td>{product.Price}</td>
-                                                <td>{isNaN(product.SalePrice) ? '-' : product.SalePrice}</td>
-                                                <td><img src={product.Picture} alt="Product" width="50" height="50" /></td>
-                                            </tr>
-                                        );
-                                    })}
-                                    </tbody>
-                                </table>
+                                <div className="tableComponent" style={{ overflowY: 'auto', height: '400px', textAlign:'center', marginTop: '40px', flexDirection: 'column' }}>
+                                    <table className="userTable" style={{ textAlign: "center", width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#f2f2f2' }}>
+                                        <tr>
+                                            <th style={{ flex: 1, border: '1px solid #ddd', padding: '8px' }}>Product Name</th>
+                                            <th style={{ flex: 1, border: '1px solid #ddd', padding: '8px' }}>Is On Sale?</th>
+                                            <th style={{ flex: 1, border: '1px solid #ddd', padding: '8px' }}>Product Price</th>
+                                            <th style={{ flex: 1, border: '1px solid #ddd', padding: '8px' }}>Sale Price</th>
+                                            <th style={{ flex: 1, border: '1px solid #ddd', padding: '8px' }}>Product</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {productLogs.map((log, index) => {
+                                            const product = parseProductData(log.message);
+                                            return (
+                                                <tr key={index}>
+                                                    <td>{product.Name}</td>
+                                                    <td>{product.IsOnSale ? 'Yes' : 'No'}</td>
+                                                    <td>{product.Price}</td>
+                                                    <td>{isNaN(product.SalePrice) ? '-' : product.SalePrice}</td>
+                                                    <td><img src={product.Picture} alt="Product" width="50" height="50" /></td>
+                                                </tr>
+                                            );
+                                        })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                         <div>
@@ -400,8 +409,6 @@ function OrderPage() {
                 </section>
             </Grid.Column>
         </Grid>
-
-
     );
 }
 
