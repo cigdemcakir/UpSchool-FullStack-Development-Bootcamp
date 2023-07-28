@@ -316,7 +316,7 @@ public class Worker : BackgroundService
 
         //await _hubConnection.InvokeAsync("SendOrderNotificationAsync", CreateLog($"Order Id : {orderAddRequest.Id}  -  Crawl Type : {orderAddRequest.ProductCrawlType.ToString()}",Guid.Empty));
     }
-    void WhatKindOfProductsDoYouWantToCrawl()
+    /*void WhatKindOfProductsDoYouWantToCrawl()
     {
         string[] validOptions = { "a", "b", "c" };
 
@@ -335,14 +335,14 @@ public class Worker : BackgroundService
 
         Console.WriteLine("Please wait, the process is starting...");
 
-    }
+    }*/
 
     void Sleep(int seconds)
     {
         Thread.Sleep(seconds * 1000);
     }
 
-    void HowManyProductDoYouWantToCrawl()
+    /*void HowManyProductDoYouWantToCrawl()
     {
         Console.WriteLine(
             "---------------------------------------------------------------------------------------------------------\n" +
@@ -355,7 +355,7 @@ public class Worker : BackgroundService
 
         } while (string.IsNullOrEmpty(crawlRequestAmount));
 
-    }
+    }*/
     async Task<TResponse> SendHttpPostRequest<TRequest, TResponse>(HttpClient httpClient, string url, TRequest payload)
     {
         var jsonPayload = JsonConvert.SerializeObject(payload);
